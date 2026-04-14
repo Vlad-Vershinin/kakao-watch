@@ -1,4 +1,4 @@
-import '../../style.css';
+import '../style.css';
 import { createIcons, icons } from 'lucide';
 
 createIcons({ icons });
@@ -30,7 +30,7 @@ form.addEventListener('submit', async (event) => {
     }
 
     try {
-        const response = await fetch('http://localhost:5098/api/register', {
+        const response = await fetch('/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body),

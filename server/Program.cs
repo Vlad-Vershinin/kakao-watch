@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using server.dtos;
@@ -27,6 +28,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 500 * 1024 * 1024;
+    options.MemoryBufferThreshold = 512 * 1024;
+});
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 1024 * 1024 * 1024;
+});
 
 builder.Services.AddAuthorization();
 
@@ -148,5 +160,47 @@ app.MapPost("/api/login", async (LoginDto dto, AppDbContext db) =>
 
     return Results.Ok(new { token = tokenString });
 });
+
+app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =>
+{
+    var form = await context.Request.ReadFormAsync();
+    var file = form.Files.GetFile("video");
+
+    var authorIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
+
+    if (file == null || file.Length == 0)
+        return Results.BadRequest("Файл не выбран");
+
+    if (authorIdClaim == null)
+        return Results.Unauthorized();
+
+    int authorId = int.Parse(authorIdClaim.Value);
+
+    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos");
+    if (!Directory.Exists(uploadsPath))
+        Directory.CreateDirectory(uploadsPath);
+
+    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+    var filePath = Path.Combine(uploadsPath, fileName);
+
+    using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: true))
+    {
+        await file.CopyToAsync(stream);
+    }
+
+    var video = new Video
+    {
+        Name = file.FileName,
+        Path = $"/videos/{fileName}",
+        AuthorId = authorId,
+        Likes = 0,
+        Views = 0
+    };
+
+    db.Videos.Add(video);
+    await db.SaveChangesAsync();
+
+    return Results.Ok();
+}).RequireAuthorization();
 
 app.Run();

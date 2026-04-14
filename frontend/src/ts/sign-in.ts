@@ -1,4 +1,4 @@
-import '../../style.css';
+import '../style.css';
 import { createIcons, icons } from 'lucide';
 
 createIcons({ icons });

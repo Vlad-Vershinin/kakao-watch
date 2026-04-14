@@ -21,10 +21,10 @@ function showAuthState(): void {
 
     if (isValidJwt(token!)) {
         container.innerHTML = `
-            <button class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
+            <a href="./src/html/upload-video.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Добавить</span>
-            </button>
+            </a>
             <button id="logout-btn" class="px-3 py-2 sm:px-4 sm:py-2 border border-border-light rounded-lg text-text-secondary hover:text-red-500 hover:border-red-500 font-medium transition-all flex items-center gap-1.5 text-sm sm:text-base">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Выйти</span>
