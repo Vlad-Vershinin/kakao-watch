@@ -3,9 +3,23 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+    --color-bg-primary: #FFFFFF;
+    --color-bg-secondary: #F7F8FA;
+    --color-bg-tertiary: #EEF0F3;
+    --color-bg-hover: #F1F3F6;
+
     
-    --color-primary: #FF7A00;
-    --color-secondary: 
+    --color-text-primary: #1A1A1A;
+    --color-text-secondary: #6B6B6B;
+    --color-text-tertiary: #9AA0A6;
+    --color-text-inverse: #FFFFFF;
+
+
+    --color-border-light: #E6E8EC;
+
+
+    --color-contrast: #ff9012;
+    --color-dark-contrast: #e8740e;
 }
 
 .dark {

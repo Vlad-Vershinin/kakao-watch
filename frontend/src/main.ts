@@ -1,5 +1,3 @@
 import './style.css'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<div>wadad</div>
-`;
+document.querySelector<HTMLDivElement>('#app')!.innerHTML = ``;

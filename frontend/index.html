@@ -5,9 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kakao-watch</title>
+    <link rel="stylesheet" href="/frontend/src/style.css">
   </head>
   <body>
     <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <header class="bg-bg-primary gap-5 flex flex-row justify-between border py-5 px-2 min-lg:px-12">
+      <h1 class="text-text-primary text-[30px] font-bold max-md:invisible max-md:absolute">Kakao-watch</h1>
+      <h1 class="text-text-primary text-[30px] font-bold min-md:invisible min-md:absolute">KW</h1>
+      <input type="text" class="flex-1 border rounded-[8px] border-text-tertiary text-text-primary py-2 px-5" placeholder="Поиск">
+      <div class="flex ">
+        <a href="" class="border border-text-tertiary rounded-l-[8px] text-center content-center px-5 bg-bg-tertiary max-lg:rounded-[8px]">ВОЙТИ</a>
+        <a href="" class="border border-text-secondary rounded-r-[8px] text-center content-center px-5 bg-contrast text-text-inverse max-lg:invisible max-lg:absolute">РЕГИСТРАЦИЯ</a>
+      </div>
+    </header>
+    <script type="module" src="src/main.ts"></script>
   </body>
 </html>
