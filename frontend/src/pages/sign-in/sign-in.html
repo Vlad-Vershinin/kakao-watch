@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kakao-watch</title>
+    <link rel="stylesheet" href="/frontend/src/style.css">
+  </head>
+  <body class="min-h-screen">
+    <div id="app"></div>
+    <main class="flex items-center justify-center min-h-screen p-4"">
+        <form action="" class="flex flex-col gap-2 border justify-stretch p-10 rounded-2xl border-text-tertiary">
+            <h1 class="text-contrast text-[30px] font-bold text-center">Kakao-watch</h1>
+            <div class="flex flex-col">
+                <p class="text-text-primary text-[20px]">Почта</p>
+                <input type="email" class="flex-1  text-[20px] border rounded-[8px] border-text-tertiary text-text-primary py-2 px-5" placeholder="example@mail.com">
+            </div>
+            <div class="flex flex-col">
+                <p class="text-text-primary text-[20px]">Пароль</p>
+                <input type="password" class="flex-1  text-[20px] border rounded-[8px] border-text-tertiary text-text-primary py-2 px-5" placeholder="********">
+            </div>
+            <div class="flex flex-row justify-between content-between mt-5 ">
+                
+                <a href="/" class="text-[20px] self-center py-2 px-5">Назад</a>
+                <button type="submit" class="text-[20px] bg-contrast hover:bg-contrast-hover text-text-inverse border rounded-[8px] border-text-tertiary self-center py-2 px-5">Войти</button>
+            
+            </div>
+        </form>
+            <a href="../sign-up/sign-up.html" class="absolute text-[20px] border bg-bg-secondary hover:bg-bg-hover rounded-[8px] border-text-tertiary self-end py-2 px-5 mt-5">Регистрация</a>
+
+        
+    </main>
+    <script type="module" src="sign-in.ts"></script>
+  </body>
+</html>
