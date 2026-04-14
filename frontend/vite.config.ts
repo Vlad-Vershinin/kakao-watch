@@ -1,9 +1,17 @@
 import { defineConfig } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
-import { resolve } from "path";
 
 export default defineConfig({
   plugins: [
     tailwindcss(),
-  ]
+  ],
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5098',
+        changeOrigin: true,
+      },
+    },
+  },
 })

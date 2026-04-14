@@ -50,7 +50,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("allowFrontend");
 app.UseAuthentication();
@@ -62,7 +62,7 @@ using (var scope = app.Services.CreateScope())
     db.Database.EnsureCreated();
 }
 
-app.MapPost("/register", async (RegisterDto dto, AppDbContext db) =>
+app.MapPost("/api/register", async (RegisterDto dto, AppDbContext db) =>
 {
     if (string.IsNullOrEmpty(dto.Name) || 
         string.IsNullOrEmpty(dto.Email) || 
@@ -77,6 +77,10 @@ app.MapPost("/register", async (RegisterDto dto, AppDbContext db) =>
     if (!dto.Email.Contains("@"))
         return Results.BadRequest("Некорректный email");
 
+    var existingUser = await db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
+    if (existingUser != null)
+        return Results.BadRequest("Пользователь с таким email уже существует");
+
     var entity = new User
     {
         Name = dto.Name,
@@ -87,10 +91,30 @@ app.MapPost("/register", async (RegisterDto dto, AppDbContext db) =>
     db.Users.Add(entity);
     await db.SaveChangesAsync();
 
-    return Results.Ok();
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, entity.Id.ToString()),
+        new Claim(ClaimTypes.Email, entity.Email),
+        new Claim(ClaimTypes.Name, entity.Name)
+    };
+
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+    var token = new JwtSecurityToken(
+        issuer: "Kakao-watch-api",
+        audience: "frontend",
+        claims: claims,
+        expires: DateTime.Now.AddDays(3),
+        signingCredentials: creds
+    );
+
+    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+    return Results.Ok(new { token = tokenString });
 });
 
-app.MapPost("/login", async (LoginDto dto, AppDbContext db) =>
+app.MapPost("/api/login", async (LoginDto dto, AppDbContext db) =>
 {
     if (string.IsNullOrEmpty(dto.Email) || string.IsNullOrEmpty(dto.Password))
     {
