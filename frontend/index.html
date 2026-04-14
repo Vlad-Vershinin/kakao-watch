@@ -7,9 +7,9 @@
     <title>Kakao-watch</title>
     <link rel="stylesheet" href="/frontend/src/style.css">
   </head>
-  <body>
+  <body class="flex flex-col min-h-screen max-h-screen max-w-full">
     <div id="app"></div>
-    <header class="bg-bg-primary gap-5 flex flex-row justify-between border py-5 px-2 min-lg:px-12 border-text-tertiary">
+    <header class="flex flex-row bg-bg-primary gap-5  justify-between border py-5 px-2 min-lg:px-12 border-text-tertiary">
       <h1 class="text-contrast text-[30px] font-bold max-md:invisible max-md:absolute">Kakao-watch</h1>
       <h1 class="text-contrast text-[30px] font-bold min-md:invisible min-md:absolute">KW</h1>
       <input type="text" class="flex-1 border rounded-[8px] border-text-tertiary text-text-primary py-2 px-5" placeholder="Поиск">
@@ -18,6 +18,20 @@
         <a href="./src/pages/sign-up/sign-up.html" class="border border-text-secondary rounded-r-[8px] text-center content-center px-5 bg-contrast hover:bg-contrast-hover text-text-inverse max-lg:invisible max-lg:absolute">РЕГИСТРАЦИЯ</a>
       </div>
     </header>
+    <main class="flex flex-1">
+      <div class="flex ">
+        <div class="flex flex-col text-[15px] uppercase border-r border-text-tertiary p-5 gap-3 max-w-60">
+          <a href="">Домой</a>
+          <a href="">Тренды</a>
+          <a href="">Подписки</a>
+          <a href="">Библиотека</a>
+          <hr class="my-4">
+          <a href="">О нас</a>
+          <a href="">Контакты</a>
+          <a href="">Пользовательское соглашение</a>
+        </div>
+      </div>
+    </main>
     <script type="module" src="src/main.ts"></script>
   </body>
 </html>
