@@ -1,4 +1,6 @@
-﻿namespace server.models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace server.models;
 
 public class Video
 {
@@ -8,4 +10,7 @@ public class Video
     public int Views { get; set; }
     public int Likes { get; set; }
     public int AuthorId { get; set; }
+
+    [ForeignKey(nameof(AuthorId))]
+    public User Author { get; set; } = null!;
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using server.dtos;
@@ -202,5 +203,24 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
 
     return Results.Ok();
 }).RequireAuthorization();
+
+app.MapGet("/api/videos", async ([FromQuery] int page, [FromQuery] int pageSize, AppDbContext db) =>
+{
+    var videos = await db.Videos
+        .Include(v => v.Author)
+        .Skip((page - 1) * pageSize)
+        .Take(pageSize)
+        .Select(v => new
+        {
+            v.Id,
+            v.Name,
+            v.Path,
+            AuthorName = v.Author.Name,
+            v.Likes,
+            v.Views
+        })
+        .ToListAsync();
+    return Results.Ok(videos);
+});
 
 app.Run();

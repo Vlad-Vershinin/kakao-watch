@@ -13,9 +13,10 @@ public class AppDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<User>()
-            .HasMany(u => u.Videos)
-            .WithOne()
-            .HasForeignKey(v => v.AuthorId);
+        modelBuilder.Entity<Video>()
+        .HasOne(v => v.Author)
+        .WithMany(u => u.Videos)
+        .HasForeignKey(v => v.AuthorId)
+        .OnDelete(DeleteBehavior.Cascade);
     }
 }
