@@ -76,7 +76,6 @@ async function loadRecommendations() {
         card.className = "flex gap-3 group cursor-pointer";
         card.innerHTML = `
             <div class="relative w-40 shrink-0 aspect-video bg-black rounded-lg overflow-hidden">
-                <img src="/api/videos/thumbnail/${v.id}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/160x90?text=Video'">
                 <div class="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">10:00</div>
             </div>
             <div class="flex flex-col gap-1 min-w-0">
@@ -104,7 +103,6 @@ async function initPlayer() {
         return;
     }
 
-    // Заполнение данных
     const videoElement = document.querySelector('video') as HTMLVideoElement;
     const sourceElement = videoElement?.querySelector('source');
     

@@ -8,8 +8,11 @@ public class Video
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
     public string Path { get; set; } = null!;
-    public int Views { get; set; }
-    public int Likes { get; set; }
+    public uint Views { get; set; }
+    public uint Likes { get; set; }
+    public uint Dislikes { get; set; }
+    public DateTime DateTime { get; set; }
+    public string ThumbnailPath { get; set; } = string.Empty;
     public int AuthorId { get; set; }
 
     [ForeignKey(nameof(AuthorId))]
