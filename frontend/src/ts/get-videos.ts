@@ -1,22 +1,16 @@
-export async function getVideos(pageSize : number = 10, page : number = 0):Promise<Response>{
-    const token = localStorage.getItem('token');
-    let response: Response = new Response;
+export async function getVideos(pageSize: number = 10, page: number = 1) {
     try {
-        response = await fetch(`/api/videos?page=${page}&pageSize=${pageSize}`, {
-            method: 'POST',
+        const response = await fetch(`/api/videos?page=${page}&pageSize=${pageSize}`, {
+            method: 'GET',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         });
 
-        if (!response.ok) {
-            const error = await response.json().catch(() => ({ message: 'Ошибка при загрузке' }));
-            alert(error.message || 'Ошибка при загрузке видео');
-            return response;
-        }
-
+        if (!response.ok) return [];
+        return await response.json();
     } catch (err) {
         console.error('Ошибка сети:', err);
+        return [];
     }
-    return response;
 }

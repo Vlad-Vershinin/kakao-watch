@@ -6,6 +6,7 @@ public class Video
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
+    public string? Description { get; set; }
     public string Path { get; set; } = null!;
     public int Views { get; set; }
     public int Likes { get; set; }

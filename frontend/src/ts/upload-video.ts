@@ -87,7 +87,7 @@ uploadForm.addEventListener('submit', async (event) => {
 
     const formData = new FormData();
     formData.append('title', title);
-    //formData.append('description', description);
+    formData.append('description', description);
     formData.append('video', file);
 
     const token = localStorage.getItem('token');

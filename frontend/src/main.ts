@@ -18,9 +18,6 @@ function isValidJwt(token: string): boolean {
 
 var feedObject = document.getElementById('videoFeed');
 
-function loadVideosIntoFeed(amount : number = 5): void{
-    console.log(getVideos());
-}
 
 function showAuthState(): void {
     const container = document.getElementById('auth-buttons')!;
@@ -60,4 +57,50 @@ function showAuthState(): void {
     }
 }
 
+async function loadVideosIntoFeed() {
+    const feedObject = document.getElementById('videoFeed');
+    if (!feedObject) return;
+
+    feedObject.innerHTML = '<p class="text-center text-text-secondary">Загрузка видео...</p>';
+
+    const videos = await getVideos(12, 1);
+
+    if (videos.length === 0) {
+        feedObject.innerHTML = '<p class="text-center text-text-secondary">Видео пока нет</p>';
+        return;
+    }
+
+    feedObject.innerHTML = '';
+    
+    videos.forEach((video: any) => {
+        const videoCard = document.createElement('div');
+        videoCard.className = 'bg-bg-primary rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300';
+        
+        videoCard.innerHTML = `
+            <div class="relative aspect-video bg-black">
+                <video class="w-full h-full object-cover">
+                    <source src="/api/videos/stream/${video.id}" type="video/mp4">
+                </video>
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
+                    <a href="./src/html/videoPlayer.html?id=${video.id}" class="p-3 bg-contrast rounded-full text-text-inverse">
+                        <i data-lucide="play" class="w-6 h-6"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-text-primary truncate">${video.name}</h3>
+                <p class="text-text-secondary text-sm">Автор: ${video.authorName}</p>
+                <div class="flex items-center gap-4 mt-3 text-text-tertiary text-xs">
+                    <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4"></i> ${video.views}</span>
+                    <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> ${video.likes}</span>
+                </div>
+            </div>
+        `;
+        feedObject.appendChild(videoCard);
+    });
+
+    createIcons({ icons });
+}
+
+loadVideosIntoFeed();
 showAuthState();

@@ -167,10 +167,16 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
     var form = await context.Request.ReadFormAsync();
     var file = form.Files.GetFile("video");
 
+    var title = form["title"].ToString();
+    var description = form["description"].ToString();
+
     var authorIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
 
     if (file == null || file.Length == 0)
         return Results.BadRequest("Файл не выбран");
+
+    if (string.IsNullOrEmpty(title))
+        return Results.BadRequest("Название обязательно");
 
     if (authorIdClaim == null)
         return Results.Unauthorized();
@@ -178,8 +184,7 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
     int authorId = int.Parse(authorIdClaim.Value);
 
     var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos");
-    if (!Directory.Exists(uploadsPath))
-        Directory.CreateDirectory(uploadsPath);
+    if (!Directory.Exists(uploadsPath)) Directory.CreateDirectory(uploadsPath);
 
     var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
     var filePath = Path.Combine(uploadsPath, fileName);
@@ -191,7 +196,8 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
 
     var video = new Video
     {
-        Name = file.FileName,
+        Name = title,
+        Description = description,
         Path = $"/videos/{fileName}",
         AuthorId = authorId,
         Likes = 0,
@@ -203,6 +209,26 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
 
     return Results.Ok();
 }).RequireAuthorization();
+
+app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
+{
+    var video = await db.Videos
+        .Include(v => v.Author)
+        .FirstOrDefaultAsync(v => v.Id == id);
+
+    if (video == null) return Results.NotFound();
+
+    return Results.Ok(new
+    {
+        video.Id,
+        video.Name,
+        video.Description,
+        video.Path,
+        AuthorName = video.Author.Name,
+        video.Likes,
+        video.Views
+    });
+});
 
 app.MapGet("/api/videos", async ([FromQuery] int page, [FromQuery] int pageSize, AppDbContext db) =>
 {
@@ -221,6 +247,18 @@ app.MapGet("/api/videos", async ([FromQuery] int page, [FromQuery] int pageSize,
         })
         .ToListAsync();
     return Results.Ok(videos);
+});
+
+app.MapGet("/api/videos/stream/{id}", async (int id, AppDbContext db) =>
+{
+    var video = await db.Videos.FindAsync(id);
+    if (video == null) return Results.NotFound();
+
+    var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", video.Path.TrimStart('/'));
+
+    if (!File.Exists(filePath)) return Results.NotFound();
+
+    return Results.File(filePath, contentType: "video/mp4", enableRangeProcessing: true);
 });
 
 app.Run();
