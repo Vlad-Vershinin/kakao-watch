@@ -7,7 +7,7 @@
     <title>Kakao-watch</title>
     <link rel="stylesheet" href="/frontend/src/style.css">
   </head>
-  <body>
+  <body class="flex flex-col min-h-screen max-h-screen max-w-full">
     <div id="app"></div>
     <header class="bg-bg-primary shadow-md flex items-center justify-between py-3 px-3 sm:px-8 lg:px-16 border-b border-border-light gap-2">
       <div class="flex items-center gap-2 shrink-0">
@@ -27,6 +27,32 @@
       <div class="flex items-center gap-2 sm:gap-3 shrink-0" id="auth-buttons">
       </div>
     </header>
+    <main class="flex flex-1">
+      <div class="flex ">
+        <div class="flex flex-col text-[15px] uppercase border-r border-text-tertiary p-5 gap-3 max-w-60 transition-all">
+          <div class="flex gap-2 hover:bg-bg-hover pr-2 transition-all">
+            <img src="" alt="" class="aspect-square object-cover overflow-hidden w-10 h-10 self-center">
+            <a href="" class="self-center">Домой</a>
+          </div>
+
+          <div class="flex gap-2 hover:bg-bg-hover pr-2 transition-all">
+            <img src="" alt="" class="aspect-square object-cover overflow-hidden w-10 h-10 self-center">
+            <a href="" class="self-center">Тренды</a>
+          </div>
+          <hr class="my-4">
+          
+          <div class="flex gap-2 hover:bg-bg-hover  pr-2 transition-all">
+            <img src="" alt="" class="aspect-square object-cover overflow-hidden w-10 h-10 self-center">
+            <a href="" class="self-center">О нас</a>
+          </div>
+          <div class="flex gap-2 hover:bg-bg-hover  pr-2 transition-all">
+            <img src="" alt="" class="aspect-square object-cover overflow-hidden w-10 h-10 self-center">
+            <a href="" class="self-center">Контакты</a>
+          </div>
+          
+        </div>
+      </div>
+    </main>
     <script type="module" src="src/main.ts"></script>
   </body>
 </html>
