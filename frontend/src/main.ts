@@ -1,5 +1,6 @@
 import './style.css';
 import { createIcons, icons } from 'lucide';
+import { getVideos } from './ts/get-videos';
 
 createIcons({ icons });
 
@@ -13,6 +14,12 @@ function isValidJwt(token: string): boolean {
     } catch {
         return false;
     }
+}
+
+var feedObject = document.getElementById('videoFeed');
+
+function loadVideosIntoFeed(amount : number = 5): void{
+    console.log(getVideos());
 }
 
 function showAuthState(): void {
