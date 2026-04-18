@@ -31,10 +31,10 @@ function showAuthState(): void {
         `;
     } else {
         container.innerHTML = `
-            <a href="./src/html/sign-in.html" class="px-3 py-2 sm:px-4 sm:py-2 border border-border-light rounded-lg text-text-primary hover:bg-bg-secondary font-medium transition-all text-sm sm:text-base">
+            <a href="./sign-in.html" class="px-3 py-2 sm:px-4 sm:py-2 border border-border-light rounded-lg text-text-primary hover:bg-bg-secondary font-medium transition-all text-sm sm:text-base">
                 Войти
             </a>
-            <a href="./src/html/sign-up.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm text-sm sm:text-base">
+            <a href="./sign-up.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm text-sm sm:text-base">
                 Регистрация
             </a>
         `;
@@ -76,7 +76,7 @@ async function loadRecommendations() {
         card.className = "flex gap-3 group cursor-pointer";
         card.innerHTML = `
             <div class="relative w-40 shrink-0 aspect-video bg-black rounded-lg overflow-hidden">
-                <img src="/api/videos/thumbnail/${v.id}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/160x90?text=Video'">
+                <!--<img src="/api/videos/thumbnail/${v.id}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/160x90?text=Video'">-->
                 <div class="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">10:00</div>
             </div>
             <div class="flex flex-col gap-1 min-w-0">

@@ -99,7 +99,7 @@ async function loadVideosIntoFeed() {
         videoCard.innerHTML = `
             <div class="relative aspect-video bg-black">
                 <video class="w-full h-full object-cover">
-                    <source src="/api/videos/stream/${video.id}" type="video/mp4">
+                    <!--<source src="/api/videos/stream/${video.id}" type="video/mp4"> -->
                 </video>
                 <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
                     <a href="./src/html/videoPlayer.html?id=${video.id}" class="p-3 bg-contrast rounded-full text-text-inverse">
