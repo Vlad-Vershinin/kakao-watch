@@ -135,4 +135,3 @@ function formatDuration(seconds: number): string {
 
 loadVideosIntoFeed();
 showAuthState();
-// showNotification("text"); // Notification test
