@@ -1,7 +1,6 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
 
-createIcons({ icons });
 
 var linkContacts = document.getElementById('LinkContacts');
 if(linkContacts){
@@ -20,3 +19,5 @@ var LinkHome = document.getElementById('LinkHome');
 if(LinkHome){
     LinkHome.innerHTML = `<i data-lucide="house" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
 }
+
+createIcons({ icons });
