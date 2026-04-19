@@ -1,3 +1,4 @@
+using FFMpegCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -5,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using server.dtos;
 using server.models;
+using System.Drawing;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -168,8 +170,7 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
     var videoFile = form.Files.GetFile("video");
     var thumbFile = form.Files.GetFile("thumbnail");
 
-    var title = form["title"];
-    var description = form["description"];
+    if (videoFile == null) return Results.BadRequest("Видео не получено");
 
     var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/videos");
     if (!Directory.Exists(uploadsPath)) Directory.CreateDirectory(uploadsPath);
@@ -178,22 +179,45 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
     var videoPath = Path.Combine(uploadsPath, videoName);
     using (var fs = new FileStream(videoPath, FileMode.Create)) await videoFile.CopyToAsync(fs);
 
-    //var thumbName = Guid.NewGuid() + Path.GetExtension(thumbFile.FileName);
-    //var thumbPath = Path.Combine(uploadsPath, thumbName);
-    //using (var fs = new FileStream(thumbPath, FileMode.Create)) await thumbFile.CopyToAsync(fs);
+    var analysis = await FFProbe.AnalyseAsync(videoPath);
+    var duration = analysis.Duration.TotalSeconds;
+
+    string thumbName;
+    string thumbPath;
+
+    if (thumbFile != null && thumbFile.Length > 0)
+    {
+        thumbName = Guid.NewGuid() + Path.GetExtension(thumbFile.FileName);
+        thumbPath = Path.Combine(uploadsPath, thumbName);
+        using (var fs = new FileStream(thumbPath, FileMode.Create)) await thumbFile.CopyToAsync(fs);
+    }
+    else
+    {
+        thumbName = Path.GetFileNameWithoutExtension(videoName) + ".jpg";
+        thumbPath = Path.Combine(uploadsPath, thumbName);
+
+        try
+        {
+            FFMpeg.Snapshot(videoPath, thumbPath, new Size(640, 360), TimeSpan.FromSeconds(1));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка FFmpeg: {ex.Message}");
+        }
+    }
 
     var authorId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-
     var video = new Video
     {
-        Name = title,
-        Description = description,
+        Name = form["title"],
+        Description = form["description"],
         Path = $"/videos/{videoName}",
-        //ThumbnailPath = $"/videos/{thumbName}",
+        ThumbnailPath = $"/videos/{thumbName}",
         AuthorId = authorId,
+        DateTime = DateTime.UtcNow,
+        Duration = TimeSpan.FromSeconds(duration),
         Likes = 0,
-        Views = 0,
-        DateTime = DateTime.Now,
+        Views = 0
     };
 
     db.Videos.Add(video);
@@ -217,6 +241,7 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
         video.Description,
         video.Path,
         AuthorName = video.Author.Name,
+        video.Duration,
         video.Likes,
         video.Views
     });
@@ -238,6 +263,7 @@ app.MapGet("/api/videos", async ([FromQuery] int page, [FromQuery] int pageSize,
             v.Dislikes,
             v.Views,
             v.ThumbnailPath,
+            Duration = v.Duration.TotalSeconds,
             v.DateTime
         })
         .ToListAsync();

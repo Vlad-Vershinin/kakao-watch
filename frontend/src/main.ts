@@ -117,7 +117,7 @@ async function loadVideosIntoFeed() {
                     </div>
                     <span class="flex items-center gap-1 text-text-tertiary text-xs">
                         <i data-lucide="timer" class="w-4 h-4"></i>
-                        ${video.length}
+                        ${formatDuration(video.duration)}
                     </span>
                 </div>
             </div>
@@ -126,6 +126,12 @@ async function loadVideosIntoFeed() {
     });
 
     createIcons({ icons });
+}
+
+function formatDuration(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 loadVideosIntoFeed();
