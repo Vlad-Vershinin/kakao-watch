@@ -1,6 +1,7 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos'; 
+import { formatRelativeTime } from './dateConverter';
 
 function isValidJwt(token: string): boolean {
     if (!token) return false;
@@ -138,6 +139,7 @@ async function initPlayer() {
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
     document.getElementById('videoViews')!.textContent = `${video.views} просмотров`;
     document.getElementById('videoLikes')!.textContent = String(video.likes || 0);
+    document.getElementById('videoDate')!.textContent = formatRelativeTime(video.Date);
 
     await loadRecommendations();
     createIcons({ icons });
