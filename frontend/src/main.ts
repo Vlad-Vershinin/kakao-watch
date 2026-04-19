@@ -109,9 +109,15 @@ async function loadVideosIntoFeed() {
             <div class="p-4">
                 <h3 class="font-bold text-lg text-text-primary truncate">${video.name}</h3>
                 <p class="text-text-secondary text-sm">Автор: ${video.authorName}</p>
-                <div class="flex items-center gap-4 mt-3 text-text-tertiary text-xs">
-                    <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4"></i> ${video.views}</span>
-                    <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> ${video.likes}</span>
+                <div class="flex justify-between  mt-3">
+                    <div class="flex items-center gap-4  text-text-tertiary text-xs">
+                        <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4"></i> ${video.views}</span>
+                        <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> ${video.likes}</span>
+                    </div>
+                    <span class="flex items-center gap-1 text-text-tertiary text-xs">
+                        <i data-lucide="timer" class="w-4 h-4"></i>
+                        ${video.length}
+                    </span>
                 </div>
             </div>
         `;
