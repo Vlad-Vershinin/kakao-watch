@@ -19,26 +19,6 @@ function isValidJwt(token: string): boolean {
 var feedObject = document.getElementById('videoFeed');
 
 
-var linkContacts = document.getElementById('LinkContacts');
-if(linkContacts){
-    linkContacts.innerHTML = `<i data-lucide="book-user" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
-}
-
-var LinkAbout = document.getElementById('LinkAbout');
-if(LinkAbout){
-    LinkAbout.innerHTML = `<i data-lucide="info" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
-}
-var LinkTrends = document.getElementById('LinkTrends');
-if(LinkTrends){
-    LinkTrends.innerHTML = `<i data-lucide="chart-no-axes-column-decreasing" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
-}
-var LinkHome = document.getElementById('LinkHome');
-if(LinkHome){
-    LinkHome.innerHTML = `<i data-lucide="house" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
-}
-
-
-
 function showAuthState(): void {
     const container = document.getElementById('auth-buttons')!;
     const token = localStorage.getItem('token');
@@ -97,12 +77,13 @@ async function loadVideosIntoFeed() {
         videoCard.className = 'bg-bg-primary rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300';
         
         videoCard.innerHTML = `
-            <div class="relative aspect-video bg-black">
-                <video class="w-full h-full object-cover">
-                    <!--<source src="/api/videos/stream/${video.id}" type="video/mp4"> -->
-                </video>
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
-                    <a href="./src/html/videoPlayer.html?id=${video.id}" class="p-3 bg-contrast rounded-full text-text-inverse">
+            <div class="relative aspect-video bg-black group cursor-pointer">
+                <img src="${video.thumbnailPath}" 
+                    class="w-full h-full object-cover transition-transform group-hover:scale-105" 
+                    alt="${video.name}">
+                
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                    <a href="./src/html/videoPlayer.html?id=${video.id}" class="p-3 bg-orange-500 rounded-full text-white">
                         <i data-lucide="play" class="w-6 h-6"></i>
                     </a>
                 </div>

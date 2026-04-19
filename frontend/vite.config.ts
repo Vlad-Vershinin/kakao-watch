@@ -22,6 +22,10 @@ export default defineConfig({
         target: 'http://localhost:5098',
         changeOrigin: true,
       },
+      '/videos': {
+        target: 'http://localhost:5098',
+        changeOrigin: true,
+      },
     },
   },
 })

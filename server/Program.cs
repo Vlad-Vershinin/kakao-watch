@@ -165,43 +165,35 @@ app.MapPost("/api/login", async (LoginDto dto, AppDbContext db) =>
 app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =>
 {
     var form = await context.Request.ReadFormAsync();
-    var file = form.Files.GetFile("video");
+    var videoFile = form.Files.GetFile("video");
+    var thumbFile = form.Files.GetFile("thumbnail");
 
-    var title = form["title"].ToString();
-    var description = form["description"].ToString();
+    var title = form["title"];
+    var description = form["description"];
 
-    var authorIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier);
-
-    if (file == null || file.Length == 0)
-        return Results.BadRequest("Файл не выбран");
-
-    if (string.IsNullOrEmpty(title))
-        return Results.BadRequest("Название обязательно");
-
-    if (authorIdClaim == null)
-        return Results.Unauthorized();
-
-    int authorId = int.Parse(authorIdClaim.Value);
-
-    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "videos");
+    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/videos");
     if (!Directory.Exists(uploadsPath)) Directory.CreateDirectory(uploadsPath);
 
-    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-    var filePath = Path.Combine(uploadsPath, fileName);
+    var videoName = Guid.NewGuid() + Path.GetExtension(videoFile.FileName);
+    var videoPath = Path.Combine(uploadsPath, videoName);
+    using (var fs = new FileStream(videoPath, FileMode.Create)) await videoFile.CopyToAsync(fs);
 
-    using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 1024 * 1024, useAsync: true))
-    {
-        await file.CopyToAsync(stream);
-    }
+    //var thumbName = Guid.NewGuid() + Path.GetExtension(thumbFile.FileName);
+    //var thumbPath = Path.Combine(uploadsPath, thumbName);
+    //using (var fs = new FileStream(thumbPath, FileMode.Create)) await thumbFile.CopyToAsync(fs);
+
+    var authorId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 
     var video = new Video
     {
         Name = title,
         Description = description,
-        Path = $"/videos/{fileName}",
+        Path = $"/videos/{videoName}",
+        //ThumbnailPath = $"/videos/{thumbName}",
         AuthorId = authorId,
         Likes = 0,
-        Views = 0
+        Views = 0,
+        DateTime = DateTime.Now,
     };
 
     db.Videos.Add(video);
@@ -243,7 +235,10 @@ app.MapGet("/api/videos", async ([FromQuery] int page, [FromQuery] int pageSize,
             v.Path,
             AuthorName = v.Author.Name,
             v.Likes,
-            v.Views
+            v.Dislikes,
+            v.Views,
+            v.ThumbnailPath,
+            v.DateTime
         })
         .ToListAsync();
     return Results.Ok(videos);
@@ -260,5 +255,33 @@ app.MapGet("/api/videos/stream/{id}", async (int id, AppDbContext db) =>
 
     return Results.File(filePath, contentType: "video/mp4", enableRangeProcessing: true);
 });
+
+app.MapPatch("/api/videos/{id}/like", async (int id, AppDbContext db) =>
+{
+    var video = await db.Videos.FindAsync(id);
+    if (video == null) return Results.NotFound();
+    video.Likes += 1;
+    await db.SaveChangesAsync();
+    return Results.Ok();
+}).RequireAuthorization();
+
+app.MapPatch("/api/videos/{id}/dislike", async (int id, AppDbContext db) =>
+{
+    var video = await db.Videos.FindAsync(id);
+    if (video == null) return Results.NotFound();
+    video.Dislikes += 1;
+    await db.SaveChangesAsync();
+    return Results.Ok();
+}).RequireAuthorization();
+
+app.MapPatch("/api/videos/{id}/view", async (int id, AppDbContext db) =>
+{
+    var video = await db.Videos.FindAsync(id);
+    if (video == null) return Results.NotFound();
+    video.Views += 1;
+    await db.SaveChangesAsync();
+    return Results.Ok();
+});
+
 
 app.Run();
