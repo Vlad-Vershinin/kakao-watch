@@ -55,12 +55,13 @@
 
                 <div class="flex items-center gap-2">
                     <div class="flex items-center bg-bg-secondary rounded-full">
-                        <button class="flex items-center gap-2 px-4 py-2 hover:bg-bg-hover border-r border-border-light transition-all rounded-l-full">
+                        <button class="flex items-center gap-2 px-4 py-2 hover:bg-bg-hover border-r border-border-light transition-all rounded-l-full" id="likeButton">
                             <i data-lucide="thumbs-up" class="w-5 h-5"></i>
-                            <span id="videoLikes">0</span>
+                            <span id="videoLikes">-</span>
                         </button>
-                        <button class="px-4 py-2 hover:bg-bg-hover transition-all rounded-r-full">
-                            <i data-lucide="thumbs-down" class="w-5 h-5"></i>
+                        <button class="flex items-center gap-2 px-4 py-2 hover:bg-bg-hover border-border-light transition-all rounded-r-full" id="dislikeButton">
+                            <i data-lucide="thumbs-down" class="w-5 h-5"></i> 
+                            <span id="videoDislikes">-</span>
                         </button>
                     </div>
                     <button class="p-2 bg-bg-secondary hover:bg-bg-hover rounded-full transition-all">

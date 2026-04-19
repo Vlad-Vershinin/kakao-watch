@@ -32,36 +32,36 @@
         <div class="flex flex-col text-[15px] uppercase border-r border-text-tertiary py-5 px-2 gap-3 max-w-60 transition-all">
           <div class="flex gap-2 hover:bg-bg-hover pr-6 rounded-md transition-all">
             <div class="w-10 h-10 self-center content-center justify-center" id="LinkHome"></div>
-            <a href="" class="self-center">Домой</a>
+            <a href="/" class="self-center">Домой</a>
           </div>
 
           <div class="flex gap-2 hover:bg-bg-hover pr-6 rounded-md transition-all">
             <div class="w-10 h-10 self-center content-center justify-center" id="LinkTrends"></div>
-            <a href="" class="self-center">Тренды</a>
+            <a href="/" class="self-center">Тренды</a>
           </div>
           <hr class="my-4">
           
           <div class="flex gap-2 hover:bg-bg-hover  pr-6 rounded-md transition-all">
             <div class="w-10 h-10 self-center content-center justify-center" id="LinkAbout"></div>
-            <a href="src/html/about.html" class="self-center">О нас</a>
+            <a href="" class="self-center">О нас</a>
           </div>
           <div class="flex gap-2 hover:bg-bg-hover  pr-6 rounded-md transition-all">
             <div class="w-10 h-10 self-center content-center justify-center" id="LinkContacts"></div>
-            <a href="src/html/contacts.html" class="self-center">Контакты</a>
+            <a href="contacts.html" class="self-center">Контакты</a>
           </div>
         </div>
 
         </div>
-        <div class="flex flex-col flex-1" id="">
-          <div class="flex-1 p-4 sm:p-6">
-              <div id="videoFeed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                  </div>
-          </div>
-          <div class="self-center justify-center mb-5">
-            <button class="self-end text-[20px] bg-bg-tertiary py-1 px-6 rounded-full hover:bg-bg-hover active:bg-bg-primary transition-colors" id="moreOptions">Загрузить больше видео</button>
-          </div>
+        <div class="flex flex-col flex-1 m-10 hover:m-6 bg-bg-tertiary rounded-lg shadow-2xl hover:shadow-text-secondary transition-all p-5 gap-5">
+            <div class="flex flex-col">
+                
+                <img src="/logo.png" alt="Logo" class="w-25 h-25 rounded-full shadow-sm object-cover justify-self-center self-center">
+                <h2 class="self-center justify-center font-black text-[30px]">О нас</h2>
+            </div>
+          <p class="self-center justify-center text-[20px] wrap-anywhere text-wrap rounded-lg hover:bg-bg-tertiary hover:shadow-2xl transition-all p-8">Kakao-watch - это платформа для просмотра видео. Мы лучше, чем ВК видео, Rutube и "Платформа" вместе взятые</p>
+          <p class="self-center justify-center text-[20px] wrap-anywhere text-wrap rounded-lg hover:bg-bg-tertiary hover:shadow-2xl transition-all p-8">Мы лучше VKVideo, RuTube и "Платформа"-ы вместе взятые</p>
         </div>
     </main>
-    <script type="module" src="src/main.ts"></script>
+    <script type="module" src="../ts/about.ts"></script>
   </body>
 </html>

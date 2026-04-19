@@ -17,6 +17,24 @@ function isValidJwt(token: string): boolean {
 }
 
 var feedObject = document.getElementById('videoFeed');
+var linkContacts = document.getElementById('LinkContacts');
+if(linkContacts){
+    linkContacts.innerHTML = `<i data-lucide="book-user" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
+}
+
+var LinkAbout = document.getElementById('LinkAbout');
+if(LinkAbout){
+    LinkAbout.innerHTML = `<i data-lucide="info" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
+}
+var LinkTrends = document.getElementById('LinkTrends');
+if(LinkTrends){
+    LinkTrends.innerHTML = `<i data-lucide="chart-no-axes-column-decreasing" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
+}
+var LinkHome = document.getElementById('LinkHome');
+if(LinkHome){
+    LinkHome.innerHTML = `<i data-lucide="house" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;
+}
+
 
 
 function showAuthState(): void {
@@ -91,9 +109,15 @@ async function loadVideosIntoFeed() {
             <div class="p-4">
                 <h3 class="font-bold text-lg text-text-primary truncate">${video.name}</h3>
                 <p class="text-text-secondary text-sm">Автор: ${video.authorName}</p>
-                <div class="flex items-center gap-4 mt-3 text-text-tertiary text-xs">
-                    <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4"></i> ${video.views}</span>
-                    <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> ${video.likes}</span>
+                <div class="flex justify-between  mt-3">
+                    <div class="flex items-center gap-4  text-text-tertiary text-xs">
+                        <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4"></i> ${video.views}</span>
+                        <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> ${video.likes}</span>
+                    </div>
+                    <span class="flex items-center gap-1 text-text-tertiary text-xs">
+                        <i data-lucide="timer" class="w-4 h-4"></i>
+                        ${video.length}
+                    </span>
                 </div>
             </div>
         `;

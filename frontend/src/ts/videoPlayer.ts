@@ -1,6 +1,6 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
-import { getVideos } from './get-videos'; // Используем вашу функцию из main.ts
+import { getVideos } from './get-videos'; 
 
 function isValidJwt(token: string): boolean {
     if (!token) return false;
@@ -88,6 +88,10 @@ async function loadRecommendations() {
     });
 }
 
+var likeCounter = document.getElementById('videoLikes');
+var dislikeCounter = document.getElementById('videoDislikes');
+
+
 async function initPlayer() {
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
@@ -102,7 +106,16 @@ async function initPlayer() {
         alert('Не удалось загрузить видео');
         return;
     }
-
+    if(likeCounter){
+        likeCounter.innerHTML = `${video.likes}`;
+    }
+    if(dislikeCounter){
+        if(!video.dislike){
+            video.dislike = 0;
+        }
+        dislikeCounter.innerHTML = `${video.dislike}`;
+    }
+    viewVideo();
     const videoElement = document.querySelector('video') as HTMLVideoElement;
     const sourceElement = videoElement?.querySelector('source');
     
@@ -125,3 +138,70 @@ document.addEventListener('DOMContentLoaded', () => {
     initPlayer();
     showAuthState();
 });
+
+
+var likeButton = document.getElementById('likeButton');
+var dislikeButton = document.getElementById('dislikeButton');
+
+likeButton?.addEventListener("click", ()=>{likeVideo();})
+dislikeButton?.addEventListener("click", ()=>{dislikeVideo();})
+
+async function likeVideo(){
+    console.log('getting string')
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = localStorage.getItem('token');
+
+    const videoId = urlParams.get('id');
+    if (videoId){
+        const video = await getVideoById(videoId);
+    
+        let respose = await fetch(`/api/videos/${videoId}/like`, {method:'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },})
+        
+        if(likeCounter && respose.ok){
+            video.likes += 1;
+            likeCounter.innerHTML = `${video.likes}`;
+        }
+    }
+
+}
+async function dislikeVideo(){
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = localStorage.getItem('token');
+
+    const videoId = urlParams.get('id');
+    if (videoId){
+        const video = await getVideoById(videoId);
+    
+        let respose = await fetch(`/api/videos/${videoId}/dislike`, {method:'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },})
+        
+        if(dislikeCounter && respose.ok){
+            video.dislikes += 1;
+            dislikeCounter.innerHTML = `${video.dislikes}`;
+        }
+    }
+}
+async function viewVideo(){
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
+    const token = localStorage.getItem('token');
+
+    if (videoId){
+        const video = await getVideoById(videoId);
+    
+        let respose = await fetch(`/api/videos/${videoId}/view`, {method:'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },})
+        
+        if(likeCounter && respose.ok){
+            video.likes += 1;
+            likeCounter.innerHTML = `${video.likes}`;
+        }
+    }
+}
