@@ -43,5 +43,7 @@ next-env.d.ts
 
 server/bin
 server/obj
-*.db
 .vs/
+server/wwwroot/
+app.db
+app.db*

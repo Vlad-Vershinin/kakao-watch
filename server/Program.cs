@@ -243,14 +243,27 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
         AuthorName = video.Author.Name,
         video.Duration,
         video.Likes,
+        video.DateTime,
         video.Views
     });
 });
 
-app.MapGet("/api/videos", async ([FromQuery] int page, [FromQuery] int pageSize, AppDbContext db) =>
+app.MapGet("/api/videos", async (
+    [FromQuery] int page, 
+    [FromQuery] int pageSize,
+    [FromQuery] int? excludeId,
+    AppDbContext db) =>
 {
-    var videos = await db.Videos
+    var query = db.Videos.AsQueryable();
+
+    if (excludeId.HasValue)
+    {
+        query = query.Where(v => v.Id != excludeId.Value);
+    }
+
+    var videos = await query
         .Include(v => v.Author)
+        .OrderByDescending(v => v.DateTime)
         .Skip((page - 1) * pageSize)
         .Take(pageSize)
         .Select(v => new

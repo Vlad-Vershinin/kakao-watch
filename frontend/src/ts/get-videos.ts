@@ -1,10 +1,13 @@
-export async function getVideos(pageSize: number = 10, page: number = 1) {
+export async function getVideos(pageSize: number = 10, page: number = 1, excludeId?: number) {
     try {
-        const response = await fetch(`/api/videos?page=${page}&pageSize=${pageSize}`, {
+        let url = `/api/videos?page=${page}&pageSize=${pageSize}`;
+        if (excludeId) {
+            url += `&excludeId=${excludeId}`;
+        }
+
+        const response = await fetch(url, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' }
         });
 
         if (!response.ok) return [];

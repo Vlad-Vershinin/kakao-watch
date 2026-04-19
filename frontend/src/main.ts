@@ -17,7 +17,6 @@ function isValidJwt(token: string): boolean {
     }
 }
 
-var feedObject = document.getElementById('videoFeed');
 var linkContacts = document.getElementById('LinkContacts');
 if(linkContacts){
     linkContacts.innerHTML = `<i data-lucide="book-user" class="w-5 h-5 text-text-tertiary justify-self-center"></i>`;

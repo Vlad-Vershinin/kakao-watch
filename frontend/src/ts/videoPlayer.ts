@@ -68,7 +68,10 @@ async function loadRecommendations() {
     const recContainer = document.getElementById('recommendations');
     if (!recContainer) return;
 
-    const videos = await getVideos(10, 1);
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
+
+    const videos = await getVideos(10, 1, Number(videoId));    
     recContainer.innerHTML = '';
 
     videos.forEach((v: any) => {
@@ -139,7 +142,9 @@ async function initPlayer() {
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
     document.getElementById('videoViews')!.textContent = `${video.views} просмотров`;
     document.getElementById('videoLikes')!.textContent = String(video.likes || 0);
-    document.getElementById('videoDate')!.textContent = formatRelativeTime(video.Date);
+    const dateStr = video.dateTime;
+    const normalizedDate = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
+    document.getElementById('videoDate')!.textContent = formatRelativeTime(new Date(normalizedDate));
 
     await loadRecommendations();
     createIcons({ icons });
@@ -197,22 +202,18 @@ async function dislikeVideo(){
         }
     }
 }
+
 async function viewVideo(){
     const urlParams = new URLSearchParams(window.location.search);
     const videoId = urlParams.get('id');
     const token = localStorage.getItem('token');
 
     if (videoId){
-        const video = await getVideoById(videoId);
-    
-        let respose = await fetch(`/api/videos/${videoId}/view`, {method:'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },})
-        
-        if(likeCounter && respose.ok){
-            video.likes += 1;
-            likeCounter.innerHTML = `${video.likes}`;
-        }
+        await fetch(`/api/videos/${videoId}/view`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
     }
 }
