@@ -13,6 +13,7 @@ public class Video
     public uint Dislikes { get; set; }
     public DateTime DateTime { get; set; }
     public string ThumbnailPath { get; set; } = string.Empty;
+    public TimeSpan Duration { get; set; }
     public int AuthorId { get; set; }
 
     [ForeignKey(nameof(AuthorId))]
