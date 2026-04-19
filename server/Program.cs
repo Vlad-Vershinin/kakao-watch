@@ -241,6 +241,7 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
         video.Description,
         video.Path,
         AuthorName = video.Author.Name,
+        video.Duration,
         video.Likes,
         video.Views
     });
@@ -262,6 +263,7 @@ app.MapGet("/api/videos", async ([FromQuery] int page, [FromQuery] int pageSize,
             v.Dislikes,
             v.Views,
             v.ThumbnailPath,
+            Duration = v.Duration.TotalSeconds,
             v.DateTime
         })
         .ToListAsync();

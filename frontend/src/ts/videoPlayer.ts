@@ -76,7 +76,10 @@ async function loadRecommendations() {
         card.className = "flex gap-3 group cursor-pointer";
         card.innerHTML = `
             <div class="relative w-40 shrink-0 aspect-video bg-black rounded-lg overflow-hidden">
-                <div class="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">10:00</div>
+                <img src="${v.thumbnailPath}" 
+                        class="w-full h-full object-cover transition-transform group-hover:scale-105" 
+                        alt="${v.name}">
+                <div class="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">${formatDuration(v.duration)}</div>
             </div>
             <div class="flex flex-col gap-1 min-w-0">
                 <h4 class="font-bold text-sm line-clamp-2 group-hover:text-orange-500 transition-colors">${v.name}</h4>
@@ -86,6 +89,12 @@ async function loadRecommendations() {
         `;
         recContainer.appendChild(card);
     });
+}
+
+function formatDuration(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
 var likeCounter = document.getElementById('videoLikes');
