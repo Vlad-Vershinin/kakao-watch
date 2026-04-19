@@ -95,7 +95,7 @@ async function loadVideosIntoFeed() {
         videoCard.className = 'bg-bg-primary rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300';
         
         videoCard.innerHTML = `
-            <a href="./src/html/videoPlayer.html?id=${video.id}" class="relative aspect-video bg-black group cursor-pointer">
+            <div class="relative aspect-video bg-black group cursor-pointer">
                 <img src="${video.thumbnailPath}" 
                     class="w-full h-full object-cover transition-transform group-hover:scale-105" 
                     alt="${video.name}">
@@ -119,7 +119,7 @@ async function loadVideosIntoFeed() {
                         ${formatDuration(video.duration)}
                     </span>
                 </div>
-            </a>
+            </div>
         `;
         feedObject.appendChild(videoCard);
     });
