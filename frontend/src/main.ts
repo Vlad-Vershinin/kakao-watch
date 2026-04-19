@@ -1,6 +1,7 @@
 import './style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './ts/get-videos';
+import { showNotification } from './ts/notification';
 
 createIcons({ icons });
 
@@ -129,3 +130,4 @@ async function loadVideosIntoFeed() {
 
 loadVideosIntoFeed();
 showAuthState();
+// showNotification("text"); // Notification test
