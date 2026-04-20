@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17
+    container_name: kakao_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kakao_watch
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d kakao_watch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: kakao_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=kakao_watch;Username=user;Password=password
+      - ASPNETCORE_URLS=http://+:5098
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5098:5098"
+    volumes:
+      - ./server/wwwroot:/app/wwwroot
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kakao_client
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

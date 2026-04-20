@@ -7,7 +7,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        videoPlayer: resolve(__dirname, 'videoPlayer.html'),
+        videoPlayer: resolve(__dirname, '/src/html/videoPlayer.html'),
       },
     },
   },

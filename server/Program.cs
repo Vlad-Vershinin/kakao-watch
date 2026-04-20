@@ -48,7 +48,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=app.db"));
+    options.UseNpgsql("Host=localhost;Port=5432;Database=kakao_watch;Username=postgres;Password=toor"));
 
 builder.Services.AddCors(options =>
 {
@@ -74,7 +74,7 @@ app.UseAuthorization();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    db.Database.Migrate();
 }
 
 app.MapPost("/api/register", async (RegisterDto dto, AppDbContext db) =>
@@ -198,7 +198,7 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
 
         try
         {
-            FFMpeg.Snapshot(videoPath, thumbPath, new Size(640, 360), TimeSpan.FromSeconds(1));
+            FFMpeg.Snapshot(videoPath, thumbPath, new Size(640, 360), TimeSpan.FromSeconds(5));
         }
         catch (Exception ex)
         {

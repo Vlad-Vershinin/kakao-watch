@@ -10,7 +10,6 @@ const fileName = document.getElementById('file-name') as HTMLParagraphElement;
 const fileSize = document.getElementById('file-size') as HTMLParagraphElement;
 const removeFileBtn = document.getElementById('remove-file') as HTMLButtonElement;
 const uploadForm = document.getElementById('upload-form') as HTMLFormElement;
-// const dropZoneContent = document.getElementById('drop-zone-content') as HTMLDivElement;
 
 function formatBytes(bytes: number): string {
     if (bytes === 0) return '0 Б';
@@ -89,7 +88,6 @@ uploadForm.addEventListener('submit', async (event) => {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('video', file);
-    //formData.append('thumbnail', thumbnailFileInput.files[0]);
 
     const token = localStorage.getItem('token');
 

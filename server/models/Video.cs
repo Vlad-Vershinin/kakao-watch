@@ -16,6 +16,5 @@ public class Video
     public TimeSpan Duration { get; set; }
     public int AuthorId { get; set; }
 
-    [ForeignKey(nameof(AuthorId))]
     public User Author { get; set; } = null!;
 }

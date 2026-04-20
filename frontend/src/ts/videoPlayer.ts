@@ -3,6 +3,19 @@ import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos'; 
 import { formatRelativeTime } from './dateConverter';
 
+interface Video {
+    id: number;
+    name: string;
+    description?: string;
+    thumbnailPath: string;
+    duration: number;
+    authorName: string;
+    views: number;
+    likes: number;
+    dislikes: number;
+    dateTime: string;
+}
+
 function isValidJwt(token: string): boolean {
     if (!token) return false;
     const parts = token.split('.');
@@ -57,43 +70,87 @@ async function getVideoById(id: string) {
     try {
         const response = await fetch(`/api/videos/${id}`);
         if (!response.ok) return null;
-        return await response.json();
+        return await response.json() as Video;
     } catch (err) {
         console.error('Ошибка при получении видео:', err);
         return null;
     }
 }
 
-async function loadRecommendations() {
-    const recContainer = document.getElementById('recommendations');
-    if (!recContainer) return;
+let currentPage = 1;
+const pageSize = 10;
+let isLoading = false;
+let hasMore = true;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const videoId = urlParams.get('id');
+const urlParams = new URLSearchParams(window.location.search);
+const currentVideoId = urlParams.get('id');
 
-    const videos = await getVideos(10, 1, Number(videoId));    
-    recContainer.innerHTML = '';
+async function loadRecommendations(page: number) {
+    if (isLoading || !hasMore) return;
 
-    videos.forEach((v: any) => {
+    const container = document.getElementById('recommendations');
+    if (!container) return;
+
+    isLoading = true;
+
+    const videos = await getVideos(pageSize, page, currentVideoId ? parseInt(currentVideoId) : undefined);
+
+    if (videos.length < pageSize) {
+        hasMore = false;
+        const trigger = document.getElementById('moreOptions');
+        if (trigger) trigger.style.display = 'none';
+    }
+
+    videos.forEach((video: Video) => {
         const card = document.createElement('a');
-        card.href = `./videoPlayer.html?id=${v.id}`;
-        card.className = "flex gap-3 group cursor-pointer";
+        card.href = `./videoPlayer.html?id=${video.id}`;
+        card.className = 'flex gap-3 p-2 hover:bg-bg-tertiary rounded-lg transition-all group';
+        
         card.innerHTML = `
-            <div class="relative w-40 shrink-0 aspect-video bg-black rounded-lg overflow-hidden">
-                <img src="${v.thumbnailPath}" 
-                        class="w-full h-full object-cover transition-transform group-hover:scale-105" 
-                        alt="${v.name}">
-                <div class="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 rounded">${formatDuration(v.duration)}</div>
+            <div class="relative w-40 aspect-video bg-black rounded-lg overflow-hidden shrink-0">
+                <img src="${video.thumbnailPath}" class="w-full h-full object-cover" alt="${video.name}">
+                <div class="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded">
+                    ${formatDuration(video.duration)}
+                </div>
             </div>
-            <div class="flex flex-col gap-1 min-w-0">
-                <h4 class="font-bold text-sm line-clamp-2 group-hover:text-orange-500 transition-colors">${v.name}</h4>
-                <p class="text-xs text-text-tertiary">${v.authorName}</p>
-                <p class="text-[10px] text-text-tertiary">${v.views} просмотров</p>
+            <div class="flex flex-col flex-1 min-w-0">
+                <h4 class="font-bold text-sm text-text-primary line-clamp-2 group-hover:text-orange-500 transition-colors">
+                    ${video.name}
+                </h4>
+                <p class="text-xs text-text-secondary mt-1">${video.authorName}</p>
+                <p class="text-[10px] text-text-tertiary">${video.views} просмотров</p>
             </div>
         `;
-        recContainer.appendChild(card);
+        container.appendChild(card);
     });
+
+    isLoading = false;
+    
+    setTimeout(checkIfNeedMore, 100);
 }
+
+function checkIfNeedMore() {
+    const trigger = document.getElementById('moreOptions');
+    if (trigger && trigger.offsetParent !== null && hasMore && !isLoading) {
+        const rect = trigger.getBoundingClientRect();
+        if (rect.top <= window.innerHeight + 300) {
+            currentPage++;
+            loadRecommendations(currentPage);
+        }
+    }
+}
+
+let scrollTimeout: ReturnType<typeof setTimeout>;
+
+window.addEventListener('DOMContentLoaded', () => {
+    loadRecommendations(currentPage);
+    
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(checkIfNeedMore, 100);
+    }, { passive: true });
+});
+
 
 function formatDuration(seconds: number): string {
     const mins = Math.floor(seconds / 60);
@@ -123,10 +180,10 @@ async function initPlayer() {
         likeCounter.innerHTML = `${video.likes}`;
     }
     if(dislikeCounter){
-        if(!video.dislike){
-            video.dislike = 0;
+        if(!video.dislikes){
+            video.dislikes = 0;
         }
-        dislikeCounter.innerHTML = `${video.dislike}`;
+        dislikeCounter.innerHTML = `${video.dislikes}`;
     }
     viewVideo();
     const videoElement = document.querySelector('video') as HTMLVideoElement;
@@ -146,7 +203,7 @@ async function initPlayer() {
     const normalizedDate = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
     document.getElementById('videoDate')!.textContent = formatRelativeTime(new Date(normalizedDate));
 
-    await loadRecommendations();
+    await loadRecommendations(currentPage);
     createIcons({ icons });
 }
 
@@ -171,6 +228,8 @@ async function likeVideo(){
     if (videoId){
         const video = await getVideoById(videoId);
     
+        if (!video) return;
+
         let respose = await fetch(`/api/videos/${videoId}/like`, {method:'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -191,6 +250,8 @@ async function dislikeVideo(){
     if (videoId){
         const video = await getVideoById(videoId);
     
+        if (!video) return;
+
         let respose = await fetch(`/api/videos/${videoId}/dislike`, {method:'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -217,3 +278,30 @@ async function viewVideo(){
         });
     }
 }
+
+const videoElement = document.getElementById('mainVideo') as HTMLVideoElement;
+
+function setupVolumePersistence() {
+    if (!videoElement) return;
+
+    const savedVolume = localStorage.getItem('videoVolume');
+    
+    if (savedVolume !== null) {
+        videoElement.volume = parseFloat(savedVolume);
+    } else {
+        videoElement.volume = 0.5;
+    }
+
+    videoElement.addEventListener('volumechange', () => {
+        localStorage.setItem('videoVolume', videoElement.volume.toString());
+        
+        localStorage.setItem('videoMuted', videoElement.muted.toString());
+    });
+
+    const savedMuted = localStorage.getItem('videoMuted');
+    if (savedMuted !== null) {
+        videoElement.muted = savedMuted === 'true';
+    }
+}
+
+setupVolumePersistence();

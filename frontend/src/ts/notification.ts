@@ -1,8 +1,5 @@
 import { createIcons, icons } from "lucide";
 
-
-
-
 export async function showNotification(notificationText : string){
     console.log("show");
     let notificationsWindow = document.getElementById("notifications");
