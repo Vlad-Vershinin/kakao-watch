@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kakao-watch | Просмотр</title>
+    <link rel="stylesheet" href="/src/style.css">
+  </head>
+  <body class="bg-bg-secondary text-text-primary min-h-screen flex flex-col">
+    <header class="bg-bg-primary shadow-sm flex items-center justify-between py-3 px-3 sm:px-8 lg:px-16 border-b border-border-light gap-2 sticky top-0 z-50">
+      <div class="flex items-center gap-2 shrink-0 cursor-pointer" onclick="window.location.href='/'">
+        <img src="/logo.png" alt="Logo" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm object-cover">
+        <h1 class="text-contrast text-xl sm:text-2xl font-bold hidden sm:block text-orange-500">Kakao-watch</h1>
+      </div>
+
+      <div class="flex-1 max-w-lg mx-2 sm:mx-4">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i data-lucide="search" class="w-4 h-4 text-text-tertiary"></i>
+          </div>
+          <input type="text" class="w-full pl-10 pr-4 py-2 text-sm border border-border-light rounded-full focus:ring-2 focus:ring-orange-500 outline-none transition-all" placeholder="Поиск">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0" id="auth-buttons">
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-[1600px] mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <div class="lg:col-span-2 flex flex-col gap-4">
+        <div class="bg-black rounded-xl overflow-hidden shadow-xl aspect-video w-full ring-1 ring-white/10">
+            <video id="mainVideo" class="w-full h-full" controls autoplay>
+                <source src="" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="bg-bg-primary rounded-xl p-5 shadow-sm border border-border-light">
+            <h2 id="videoTitle" class="text-2xl font-bold leading-tight mb-4">Загрузка...</h2>
+            
+            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-border-light">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
+                        <i data-lucide="user" class="text-orange-500"></i>
+                    </div>
+                    <div>
+                        <p id="authorName" class="font-bold text-lg">Канал</p>
+                        <p class="text-xs text-text-tertiary">Подписчиков: 0</p>
+                    </div>
+                    <button class="ml-4 px-6 py-2 bg-text-primary text-text-inverse rounded-full font-medium hover:opacity-90 transition-all">
+                        Подписаться
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div class="flex items-center bg-bg-secondary rounded-full">
+                        <button class="flex items-center gap-2 px-4 py-2 hover:bg-bg-hover border-r border-border-light transition-all rounded-l-full" id="likeButton">
+                            <i data-lucide="thumbs-up" class="w-5 h-5"></i>
+                            <span id="videoLikes">-</span>
+                        </button>
+                        <button class="flex items-center gap-2 px-4 py-2 hover:bg-bg-hover border-border-light transition-all rounded-r-full" id="dislikeButton">
+                            <i data-lucide="thumbs-down" class="w-5 h-5"></i> 
+                            <span id="videoDislikes">-</span>
+                        </button>
+                    </div>
+                    <button class="p-2 bg-bg-secondary hover:bg-bg-hover rounded-full transition-all">
+                        <i data-lucide="share-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4 bg-bg-secondary rounded-lg p-3 text-sm">
+                <div class="flex gap-3 font-bold mb-1">
+                    <span id="videoViews">0 просмотров</span>
+                    <span id="videoDate">- час(а/ов) назад</span>
+                </div>
+                <p id="videoDescription" class="whitespace-pre-wrap text-text-secondary">
+                    Загрузка описания...
+                </p>
+            </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4">
+        <h3 class="font-bold text-xl px-2">Следующее</h3>
+        <div id="recommendations" class="flex flex-col gap-3">
+            </div>
+        
+        <div id="moreOptions" class="w-full py-4 flex justify-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
+        </div>
+    </div>
+    </main>
+
+    <script type="module" src="/src/ts/videoPlayer.ts"></script>
+  </body>
+</html>

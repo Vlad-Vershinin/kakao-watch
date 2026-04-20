@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kakao-watch</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body class="min-h-screen">
+    <div id="app"></div>
+    <main class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-bg-secondary to-bg-tertiary">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-contrast mb-4 shadow-lg">
+                    <i data-lucide="clock" class="w-8 h-8 text-text-inverse"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-text-primary">Kakao-watch</h1>
+                <p class="text-text-secondary mt-2">Войдите, чтобы продолжить</p>
+            </div>
+
+            <form action="" class="bg-bg-primary rounded-2xl shadow-xl p-8 space-y-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-text-primary">Почта</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="mail" class="w-5 h-5 text-text-tertiary"></i>
+                        </div>
+                        <input type="email" class="w-full pl-10 pr-4 py-3 border border-border-light rounded-lg focus:ring-2 focus:ring-contrast focus:border-transparent outline-none transition-all text-text-primary placeholder-text-tertiary" placeholder="example@mail.com">
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-text-primary">Пароль</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="lock" class="w-5 h-5 text-text-tertiary"></i>
+                        </div>
+                        <input type="password" class="w-full pl-10 pr-4 py-3 border border-border-light rounded-lg focus:ring-2 focus:ring-contrast focus:border-transparent outline-none transition-all text-text-primary placeholder-text-tertiary" placeholder="********">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="w-4 h-4 text-contrast border-border-light rounded focus:ring-contrast">
+                        <span class="text-text-secondary">Запомнить меня</span>
+                    </label>
+                    <a href="/" class="text-contrast hover:text-contrast-hover font-medium transition-colors">Забыли пароль?</a>
+                </div>
+
+                <button type="submit" class="w-full bg-contrast hover:bg-contrast-hover text-text-inverse font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5">
+                    Войти
+                </button>
+
+                <a href="/" class="block text-center text-text-secondary hover:text-text-primary py-2 transition-colors">
+                    ← Назад
+                </a>
+            </form>
+
+            <p class="text-center text-text-secondary mt-6">
+                Нет аккаунта?
+                <a id="sign-in-btn" href="sign-up.html" class="text-contrast hover:text-contrast-hover font-semibold transition-colors">
+                    Зарегистрироваться
+                </a>
+            </p>
+        </div>
+    </main>
+    <script type="module" src="../ts/sign-in.ts"></script>
+  </body>
+</html>
