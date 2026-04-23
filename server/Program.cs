@@ -76,6 +76,27 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate();
 }
 
+string generateJwtToken(User user)
+{
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Name, user.Name),
+        new Claim(ClaimTypes.Role, user.Role.ToString())
+    };
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var token = new JwtSecurityToken(
+        issuer: issuer,
+        audience: audience,
+        claims: claims,
+        expires: DateTime.Now.AddDays(3),
+        signingCredentials: creds
+    );
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}
+
 app.MapPost("/api/register", async (RegisterDto dto, AppDbContext db) =>
 {
     if (string.IsNullOrEmpty(dto.Name) || 
@@ -105,25 +126,7 @@ app.MapPost("/api/register", async (RegisterDto dto, AppDbContext db) =>
     db.Users.Add(entity);
     await db.SaveChangesAsync();
 
-    var claims = new[]
-    {
-        new Claim(ClaimTypes.NameIdentifier, entity.Id.ToString()),
-        new Claim(ClaimTypes.Email, entity.Email),
-        new Claim(ClaimTypes.Name, entity.Name)
-    };
-
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-    var token = new JwtSecurityToken(
-        issuer: "Kakao-watch-api",
-        audience: "frontend",
-        claims: claims,
-        expires: DateTime.Now.AddDays(3),
-        signingCredentials: creds
-    );
-
-    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+    var tokenString = generateJwtToken(entity);
 
     return Results.Ok(new { token = tokenString });
 });
@@ -140,25 +143,7 @@ app.MapPost("/api/login", async (LoginDto dto, AppDbContext db) =>
     if (user == null)
         return Results.BadRequest("Неверный email или пароль.");
 
-    var claims = new[]
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Name, user.Name)
-    };
-
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-    var token = new JwtSecurityToken(
-        issuer: issuer,
-        audience: audience,
-        claims: claims,
-        expires: DateTime.Now.AddDays(3),
-        signingCredentials: creds
-    );
-
-    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+    var tokenString = generateJwtToken(user);
 
     return Results.Ok(new { token = tokenString });
 });
@@ -326,6 +311,26 @@ app.MapPatch("/api/videos/{id}/view", async (int id, AppDbContext db) =>
     video.Views += 1;
     await db.SaveChangesAsync();
     return Results.Ok();
+});
+
+app.MapGet("/api/videos/comments", async (int id, AppDbContext db) =>
+{
+    var video = await db.Videos.FindAsync(id);
+    if (video == null) return Results.NotFound();
+    var comments = await db.Comments
+        .Where(c => c.VideoId == id)
+        .Include(c => c.Author)
+        .OrderByDescending(c => c.SentAt)
+        .Select(c => new
+        {
+            c.Id,
+            c.Content,
+            AuthorName = c.Author.Name,
+            c.AuthorId,
+            c.SentAt
+        })
+        .ToListAsync();
+    return Results.Ok(comments);
 });
 
 app.MapPost("/api/videos/{id}/comments", async (int id, CommentDto dto, AppDbContext db, HttpContext context) =>
