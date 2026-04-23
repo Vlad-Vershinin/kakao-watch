@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace server.models;
+﻿namespace server.models;
 
 public class Video
 {
@@ -15,6 +13,8 @@ public class Video
     public string ThumbnailPath { get; set; } = string.Empty;
     public TimeSpan Duration { get; set; }
     public int AuthorId { get; set; }
+    public VideoAccess Access { get; set; } = VideoAccess.Public;
 
     public User Author { get; set; } = null!;
+    public List<Comment> Comments { get; set; } = [];
 }

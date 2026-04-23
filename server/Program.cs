@@ -65,7 +65,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("allowFrontend");
 app.UseAuthentication();
@@ -241,6 +240,7 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
         video.Description,
         video.Path,
         AuthorName = video.Author.Name,
+        video.AuthorId,
         video.Duration,
         video.Likes,
         video.DateTime,
@@ -262,6 +262,7 @@ app.MapGet("/api/videos", async (
     }
 
     var videos = await query
+        .Where(v => v.Access == VideoAccess.Public)
         .Include(v => v.Author)
         .OrderByDescending(v => v.DateTime)
         .Skip((page - 1) * pageSize)
@@ -282,6 +283,11 @@ app.MapGet("/api/videos", async (
         .ToListAsync();
     return Results.Ok(videos);
 });
+
+app.MapPatch("/api/videos/{id}", async (int id, UpdateVideoDto dto, AppDbContext db) =>
+{
+
+}).RequireAuthorization();
 
 app.MapGet("/api/videos/stream/{id}", async (int id, AppDbContext db) =>
 {
@@ -321,6 +327,41 @@ app.MapPatch("/api/videos/{id}/view", async (int id, AppDbContext db) =>
     await db.SaveChangesAsync();
     return Results.Ok();
 });
+
+app.MapPost("/api/videos/{id}/comments", async (int id, CommentDto dto, AppDbContext db, HttpContext context) =>
+{
+    var video = await db.Videos.FindAsync(id);
+
+    if (video == null) return Results.NotFound();
+    var authorId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+
+    var comment = new Comment
+    {
+        Content = dto.Content,
+        AuthorId = authorId,
+        VideoId = id,
+        SentAt = DateTime.UtcNow
+    };
+
+    db.Comments.Add(comment);
+    await db.SaveChangesAsync();
+    return Results.Ok();
+}).RequireAuthorization();
+
+app.MapDelete("/api/comments/{id}", async (int id, AppDbContext db, HttpContext context) =>
+{
+    var comment = await db.Comments.FindAsync(id);
+
+    if (comment == null) return Results.NotFound();
+    var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+    if (comment.AuthorId != userId) return Results.Forbid();
+
+    db.Comments.Remove(comment);
+    await db.SaveChangesAsync();
+
+    return Results.Ok();
+}).RequireAuthorization();
+
 
 
 app.Run();

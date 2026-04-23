@@ -9,4 +9,5 @@ public class User
 
 
     public List<Video> Videos { get; set; } = new List<Video>();
+    public List<Comment> Comments { get; set; } = new List<Comment>();
 }
