@@ -69,5 +69,5 @@ function isValidJwt(token: string): boolean {
     }
 }
 
-
+showAuthState();
 createIcons({ icons });
