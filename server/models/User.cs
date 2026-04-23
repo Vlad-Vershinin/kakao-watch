@@ -7,6 +7,8 @@ public class User
     public string Email { get; set; } = null!;
     public string Password { get; set; } = null!;
 
+    public UserRole Role { get; set; } = UserRole.User;
+
 
     public List<Video> Videos { get; set; } = new List<Video>();
     public List<Comment> Comments { get; set; } = new List<Comment>();
