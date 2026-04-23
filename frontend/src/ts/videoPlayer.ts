@@ -196,7 +196,7 @@ async function initPlayer() {
         sourceElement.src = `/api/videos/stream/${video.id}`;
         videoElement.load();
     }
-    (document.getElementById('ChangeAttributesLink')! as HTMLLinkElement).href = `/change-video-attributes.html?${videoId}`;
+    (document.getElementById('ChangeAttributesLink')! as HTMLLinkElement).href = `/src/html/change-video-attributes.html?${videoId}`;
     document.getElementById('videoTitle')!.textContent = video.name;
     document.getElementById('videoDescription')!.textContent = video.description || 'Нет описания';
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
