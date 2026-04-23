@@ -11,6 +11,7 @@ interface Video {
     thumbnailPath: string;
     duration: number;
     authorName: string;
+    authorId: number;
     views: number;
     likes: number;
     dislikes: number;
@@ -195,7 +196,7 @@ async function initPlayer() {
         sourceElement.src = `/api/videos/stream/${video.id}`;
         videoElement.load();
     }
-    
+    (document.getElementById('ChangeAttributesLink')! as HTMLLinkElement).href = `/change-video-attributes.html?${videoId}`;
     document.getElementById('videoTitle')!.textContent = video.name;
     document.getElementById('videoDescription')!.textContent = video.description || 'Нет описания';
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
@@ -205,8 +206,9 @@ async function initPlayer() {
     const normalizedDate = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
     document.getElementById('videoDate')!.textContent = formatRelativeTime(new Date(normalizedDate));
     
-    if(getUserIdFromToken())
-    document.getElementById('videoAccessPanel')!.classList.add('hidden');
+    if(getUserIdFromToken() == video.authorId){
+        document.getElementById('videoAccessPanel')!.classList.remove('hidden');
+    }
 
     await loadRecommendations(currentPage);
     createIcons({ icons });

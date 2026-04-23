@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kakao-watch — Добавить видео</title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+  <body class="min-h-screen">
+    <div id="app"></div>
+    <main class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-bg-secondary to-bg-tertiary">
+      <div class="w-full max-w-lg">
+
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-contrast mb-4 shadow-lg">
+            <i data-lucide="video" class="w-8 h-8 text-text-inverse"></i>
+          </div>
+          <h1 class="text-4xl font-bold text-text-primary">Изменить аттрибуты видео</h1>
+        </div>
+
+        <form id="upload-form" class="bg-bg-primary rounded-2xl shadow-xl p-8 space-y-6">
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-text-primary">Название видео</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i data-lucide="film" class="w-5 h-5 text-text-tertiary"></i>
+              </div>
+              <input
+                type="text"
+                id="videoTitle"
+                required
+                class="w-full pl-10 pr-4 py-3 border border-border-light rounded-lg focus:ring-2 focus:ring-contrast focus:border-transparent outline-none transition-all text-text-primary placeholder-text-tertiary"
+                placeholder="Введите название видео"
+              >
+            </div>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="block text-sm font-medium text-text-primary">Описание</label>
+            <div class="relative">
+              <textarea
+                id="videoDescription"
+                rows="3"
+                class="w-full p-3 border border-border-light rounded-lg focus:ring-2 focus:ring-contrast focus:border-transparent outline-none transition-all text-text-primary placeholder-text-tertiary resize-none"
+                placeholder="Краткое описание видео (необязательно)"
+              ></textarea>
+            </div>
+          </div>
+          <div id="videoAccessPanel" class="flex flex-col mt-4 border border-border-light rounded-lg p-3 text-sm gap-3">
+                <h2 class="flex gap-3 font-bold mb-1">Доступ к видео</h2>
+                <hr class="border-border-light">
+                <div class="flex flex-col gap-1">
+                    <div>
+                        <input id="RadioGlobal" name="access" type="radio" value="global" checked>
+                        <label for="RadioGlobal" class="">Открытый</label>
+                    </div>
+                    <div>
+                        <input id="RadioUrlOnly" name="access" type="radio" value="urlOnly">
+                        <label for="RadioUrlOnly">Только по ссылке</label>
+                    </div>
+                </div>
+                
+            </div>
+
+
+          <button
+            id="submitBtn"
+            type="submit"
+            class="w-full bg-contrast hover:bg-contrast-hover text-text-inverse font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+          >
+            <i data-lucide="upload" class="w-5 h-5"></i>
+            Сохранить изменения
+          </button>
+
+          <a href="/" class="block text-center text-text-secondary hover:text-text-primary py-2 transition-colors">
+            ← Назад
+          </a>
+        </form>
+      </div>
+    </main>
+    <script type="module" src="../ts/change-video-attributes.ts"></script>
+  </body>
+</html>
