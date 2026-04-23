@@ -80,6 +80,29 @@
                 </p>
             </div>
         </div>
+
+        <div class="flex flex-col bg-bg-primary rounded-xl p-5 shadow-sm border border-border-light">
+            <h2 class="text-2xl font-bold leading-tight mb-4">Комментарии</h2>
+            <div class="flex py-3">
+                <input  id="CommentSendInput" type="text" class="border border-border-light flex flex-1 p-2 pl-4 rounded-l-full bg-bg-tertiary hover:bg-bg-hover transition-all" placeholder="Введите ваш комментарий">
+                <button id="CommentSendButton" class="bg-contrast hover:bg-contrast-hover p-2 rounded-r-full pr-4 transition-all">Отправить</button>
+            </div>
+            <hr class="text-border-light">
+            <div id="CommentsList" class="flex flex-col gap-3 py-5">
+                <!-- Начало шаблона -->
+                <div class="flex flex-col bg-bg-secondary  rounded-lg p-3 gap-3">
+                    <div class="flex gap-3">
+                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
+                            <i data-lucide="user" class="text-orange-500"></i>
+                        </div>
+                        <p class="font-bold text-lg self-center">Имя пользователя</p>
+                    </div>
+                    <p class="text-md ml-15">Текст комментария</p>
+                </div>
+
+                <!-- Конец шаблона -->
+            </div>
+        </div>
       </div>
 
       <div class="flex flex-col gap-4">
