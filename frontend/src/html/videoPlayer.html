@@ -73,7 +73,23 @@
                     </button>
                 </div>
             </div>
-
+            
+            <div id="videoAccessPanel" class="flex flex-col mt-4 bg-bg-secondary rounded-lg p-3 text-sm gap-3">
+                <h2 class="flex gap-3 font-bold mb-1">Доступ к видео</h2>
+                <hr class="border-border-light">
+                <div class="flex flex-col gap-1">
+                    <div>
+                        <input id="RadioGlobal" name="access" type="radio" value="global" checked>
+                        <label for="RadioGlobal" class="">Открытый</label>
+                    </div>
+                    <div>
+                        <input id="RadioUrlOnly" name="access" type="radio" value="urlOnly">
+                        <label for="RadioUrlOnly">Только по ссылке</label>
+                    </div>
+                </div>
+                
+            </div>
+            
             <div class="mt-4 bg-bg-secondary rounded-lg p-3 text-sm">
                 <div class="flex gap-3 font-bold mb-1">
                     <span id="videoViews">0 просмотров</span>
@@ -92,6 +108,7 @@
                 <button id="CommentSendButton" class="bg-contrast hover:bg-contrast-hover p-2 rounded-full transition-all"><i data-lucide="send-horizontal" class=" text-text-primary opacity-50 hover:opacity-90 transition-all"></i></button>
             </div>
             <hr class="text-border-light">
+            
             <div id="CommentsList" class="flex flex-col gap-3 py-5">
                 <!-- Начало шаблона -->
                 <div class="flex flex-col bg-bg-secondary  rounded-lg p-3 gap-3">
