@@ -165,6 +165,7 @@ var dislikeCounter = document.getElementById('videoDislikes');
 
 async function initPlayer() {
     const urlParams = new URLSearchParams(window.location.search);
+    const token = localStorage.getItem('token');
     const videoId = urlParams.get('id');
 
     if (!videoId) {
@@ -194,7 +195,7 @@ async function initPlayer() {
         sourceElement.src = `/api/videos/stream/${video.id}`;
         videoElement.load();
     }
-
+    
     document.getElementById('videoTitle')!.textContent = video.name;
     document.getElementById('videoDescription')!.textContent = video.description || 'Нет описания';
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
@@ -203,10 +204,33 @@ async function initPlayer() {
     const dateStr = video.dateTime;
     const normalizedDate = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
     document.getElementById('videoDate')!.textContent = formatRelativeTime(new Date(normalizedDate));
+    
+    if(getUserIdFromToken())
+    document.getElementById('videoAccessPanel')!.classList.add('hidden');
 
     await loadRecommendations(currentPage);
     createIcons({ icons });
 }
+
+function getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+
+        const id = payload["nameid"] || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+        return id ? parseInt(id) : null;
+    } catch (error) {
+        console.error("Ошибка при парсинге токена:", error);
+        return null;
+    }
+}
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     initPlayer();
