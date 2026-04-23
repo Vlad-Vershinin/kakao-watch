@@ -2,6 +2,7 @@ import '../style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos'; 
 import { formatRelativeTime } from './dateConverter';
+import { showNotification } from './notification';
 
 interface Video {
     id: number;
@@ -10,6 +11,7 @@ interface Video {
     thumbnailPath: string;
     duration: number;
     authorName: string;
+    authorId: number;
     views: number;
     likes: number;
     dislikes: number;
@@ -34,7 +36,7 @@ function showAuthState(): void {
 
     if (isValidJwt(token!)) {
         container.innerHTML = `
-            <a href="./src/html/upload-video.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
+            <a href="/upload-video.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Добавить</span>
             </a>
@@ -45,10 +47,10 @@ function showAuthState(): void {
         `;
     } else {
         container.innerHTML = `
-            <a href="./src/html/sign-in.html" class="px-3 py-2 sm:px-4 sm:py-2 border border-border-light rounded-lg text-text-primary hover:bg-bg-secondary font-medium transition-all text-sm sm:text-base">
+            <a href="/sign-in.html" class="px-3 py-2 sm:px-4 sm:py-2 border border-border-light rounded-lg text-text-primary hover:bg-bg-secondary font-medium transition-all text-sm sm:text-base">
                 Войти
             </a>
-            <a href="./src/html/sign-up.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm text-sm sm:text-base">
+            <a href="/sign-up.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm text-sm sm:text-base">
                 Регистрация
             </a>
         `;
@@ -164,6 +166,7 @@ var dislikeCounter = document.getElementById('videoDislikes');
 
 async function initPlayer() {
     const urlParams = new URLSearchParams(window.location.search);
+    const token = localStorage.getItem('token');
     const videoId = urlParams.get('id');
 
     if (!videoId) {
@@ -173,7 +176,7 @@ async function initPlayer() {
 
     const video = await getVideoById(videoId);
     if (!video) {
-        alert('Не удалось загрузить видео');
+        showNotification('Не удалось загрузить видео');
         return;
     }
     if(likeCounter){
@@ -193,7 +196,7 @@ async function initPlayer() {
         sourceElement.src = `/api/videos/stream/${video.id}`;
         videoElement.load();
     }
-
+    (document.getElementById('ChangeAttributesLink')! as HTMLLinkElement).href = `/change-video-attributes.html?${videoId}`;
     document.getElementById('videoTitle')!.textContent = video.name;
     document.getElementById('videoDescription')!.textContent = video.description || 'Нет описания';
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
@@ -202,10 +205,34 @@ async function initPlayer() {
     const dateStr = video.dateTime;
     const normalizedDate = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
     document.getElementById('videoDate')!.textContent = formatRelativeTime(new Date(normalizedDate));
+    
+    if(getUserIdFromToken() == video.authorId){
+        document.getElementById('videoAccessPanel')!.classList.remove('hidden');
+    }
 
     await loadRecommendations(currentPage);
     createIcons({ icons });
 }
+
+function getUserIdFromToken(): number | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+
+        const id = payload["nameid"] || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+
+        return id ? parseInt(id) : null;
+    } catch (error) {
+        console.error("Ошибка при парсинге токена:", error);
+        return null;
+    }
+}
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
     initPlayer();

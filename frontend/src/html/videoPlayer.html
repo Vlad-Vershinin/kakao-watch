@@ -27,8 +27,12 @@
         </div>
     </header>
 
-    <main class="flex-1 max-w-[1600px] mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
+    <main >
+      <div id="notifications" class="absolute pointer-events-none justify-end flex flex-1 z-10 w-full px-5">
+        
+        
+      </div>
+      <div class="flex-1 max-w-[1600px] mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="lg:col-span-2 flex flex-col gap-4">
         <div class="bg-black rounded-xl overflow-hidden shadow-xl aspect-video w-full ring-1 ring-white/10">
             <video id="mainVideo" class="w-full h-full" controls autoplay>
@@ -69,6 +73,14 @@
                     </button>
                 </div>
             </div>
+            
+            <div id="videoAccessPanel" class="flex flex-col mt-4 bg-bg-secondary rounded-lg p-3 text-sm gap-3 hidden">
+                <a id="ChangeAttributesLink" class="bg-bg-tertiary hover:bg-bg-hover p-2 rounded-full transition-all">
+                    Изменить аттрибуты видео
+                </a>
+
+                
+            </div>
 
             <div class="mt-4 bg-bg-secondary rounded-lg p-3 text-sm">
                 <div class="flex gap-3 font-bold mb-1">
@@ -78,6 +90,34 @@
                 <p id="videoDescription" class="whitespace-pre-wrap text-text-secondary">
                     Загрузка описания...
                 </p>
+            </div>
+        </div>
+
+        <div class="flex flex-col bg-bg-primary rounded-xl p-5 shadow-sm border border-border-light">
+            <h2 class="text-2xl font-bold leading-tight mb-4">Комментарии</h2>
+            <div class="flex py-3 gap-3">
+                <input  id="CommentSendInput" type="text" class="border border-border-light flex flex-1 p-2 pl-4 rounded-full bg-bg-tertiary hover:bg-bg-hover transition-all" placeholder="Введите ваш комментарий">
+                <button id="CommentSendButton" class="bg-contrast hover:bg-contrast-hover p-2 rounded-full transition-all"><i data-lucide="send-horizontal" class=" text-text-primary opacity-50 hover:opacity-90 transition-all"></i></button>
+            </div>
+            <hr class="text-border-light">
+            
+            <div id="CommentsList" class="flex flex-col gap-3 py-5">
+                <!-- Начало шаблона -->
+                <div class="flex flex-col bg-bg-secondary  rounded-lg p-3 gap-3">
+                    <div class="flex justify-between">
+                        <div class="flex gap-3">
+
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
+                                <i data-lucide="user" class="text-orange-500"></i>
+                            </div>
+                            <p class="font-bold text-lg self-center">Имя пользователя</p>
+                        </div>
+                        <button class="self-center hover:underline bg-bg-tertiary p-2 px-4 rounded-full hover:bg-bg-hover transition-all">Удалить</button>
+                    </div>
+                    <p class="text-md ml-15">Текст комментария</p>
+                </div>
+
+                <!-- Конец шаблона -->
             </div>
         </div>
       </div>
@@ -91,6 +131,7 @@
             <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-orange-500"></div>
         </div>
     </div>
+</div>
     </main>
 
     <script type="module" src="/src/ts/videoPlayer.ts"></script>

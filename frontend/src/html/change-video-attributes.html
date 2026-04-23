@@ -15,8 +15,7 @@
           <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-contrast mb-4 shadow-lg">
             <i data-lucide="video" class="w-8 h-8 text-text-inverse"></i>
           </div>
-          <h1 class="text-4xl font-bold text-text-primary">Добавить видео</h1>
-          <p class="text-text-secondary mt-2">Загрузите новый контент</p>
+          <h1 class="text-4xl font-bold text-text-primary">Изменить аттрибуты видео</h1>
         </div>
 
         <form id="upload-form" class="bg-bg-primary rounded-2xl shadow-xl p-8 space-y-6">
@@ -28,7 +27,7 @@
               </div>
               <input
                 type="text"
-                id="video-title"
+                id="videoTitle"
                 required
                 class="w-full pl-10 pr-4 py-3 border border-border-light rounded-lg focus:ring-2 focus:ring-contrast focus:border-transparent outline-none transition-all text-text-primary placeholder-text-tertiary"
                 placeholder="Введите название видео"
@@ -40,7 +39,7 @@
             <label class="block text-sm font-medium text-text-primary">Описание</label>
             <div class="relative">
               <textarea
-                id="video-description"
+                id="videoDescription"
                 rows="3"
                 class="w-full p-3 border border-border-light rounded-lg focus:ring-2 focus:ring-contrast focus:border-transparent outline-none transition-all text-text-primary placeholder-text-tertiary resize-none"
                 placeholder="Краткое описание видео (необязательно)"
@@ -63,46 +62,6 @@
                 
             </div>
 
-          <div class="space-y-2">
-            <label class="block text-sm font-medium text-text-primary">Видеофайл</label>
-            <div
-              id="drop-zone"
-              class="relative border-2 border-dashed border-border-light rounded-lg p-8 text-center transition-all cursor-pointer hover:border-contrast hover:bg-bg-secondary"
-            >
-              <input
-                type="file"
-                id="video-file"
-                accept="video/*"
-                required
-                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              >
-              <div id="drop-zone-content" class="space-y-3">
-                <i data-lucide="upload-cloud" class="w-12 h-12 text-text-tertiary mx-auto"></i>
-                <div>
-                  <p class="text-text-primary font-medium">Перетащите видео сюда</p>
-                  <p class="text-text-secondary text-sm mt-1">или нажмите для выбора файла</p>
-                </div>
-                <p class="text-text-tertiary text-xs">MP4, WebM, AVI — до 500 МБ</p>
-              </div>
-            </div>
-
-            <div id="file-preview" class="hidden">
-              <div class="flex items-center gap-3 p-3 bg-bg-secondary rounded-lg">
-                <i data-lucide="file-video" class="w-8 h-8 text-contrast shrink-0"></i>
-                <div class="flex-1 min-w-0">
-                  <p id="file-name" class="text-text-primary text-sm font-medium truncate"></p>
-                  <p id="file-size" class="text-text-secondary text-xs"></p>
-                </div>
-                <button
-                  type="button"
-                  id="remove-file"
-                  class="p-1 text-text-tertiary hover:text-red-500 transition-colors"
-                >
-                  <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-              </div>
-            </div>
-          </div>
 
           <button
             id="submitBtn"
@@ -110,7 +69,7 @@
             class="w-full bg-contrast hover:bg-contrast-hover text-text-inverse font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
           >
             <i data-lucide="upload" class="w-5 h-5"></i>
-            Загрузить видео
+            Сохранить изменения
           </button>
 
           <a href="/" class="block text-center text-text-secondary hover:text-text-primary py-2 transition-colors">
@@ -119,6 +78,6 @@
         </form>
       </div>
     </main>
-    <script type="module" src="../ts/upload-video.ts"></script>
+    <script type="module" src="../ts/change-video-attributes.ts"></script>
   </body>
 </html>
