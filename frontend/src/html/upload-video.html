@@ -47,6 +47,21 @@
               ></textarea>
             </div>
           </div>
+          <div id="videoAccessPanel" class="flex flex-col mt-4 border border-border-light rounded-lg p-3 text-sm gap-3">
+                <h2 class="flex gap-3 font-bold mb-1">Доступ к видео</h2>
+                <hr class="border-border-light">
+                <div class="flex flex-col gap-1">
+                    <div>
+                        <input id="RadioGlobal" name="access" type="radio" value="global" checked>
+                        <label for="RadioGlobal" class="">Открытый</label>
+                    </div>
+                    <div>
+                        <input id="RadioUrlOnly" name="access" type="radio" value="urlOnly">
+                        <label for="RadioUrlOnly">Только по ссылке</label>
+                    </div>
+                </div>
+                
+            </div>
 
           <div class="space-y-2">
             <label class="block text-sm font-medium text-text-primary">Видеофайл</label>
