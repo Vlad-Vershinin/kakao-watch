@@ -89,7 +89,7 @@
                 </div>
                 
             </div>
-            
+
             <div class="mt-4 bg-bg-secondary rounded-lg p-3 text-sm">
                 <div class="flex gap-3 font-bold mb-1">
                     <span id="videoViews">0 просмотров</span>
@@ -112,11 +112,15 @@
             <div id="CommentsList" class="flex flex-col gap-3 py-5">
                 <!-- Начало шаблона -->
                 <div class="flex flex-col bg-bg-secondary  rounded-lg p-3 gap-3">
-                    <div class="flex gap-3">
-                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
-                            <i data-lucide="user" class="text-orange-500"></i>
+                    <div class="flex justify-between">
+                        <div class="flex gap-3">
+
+                            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
+                                <i data-lucide="user" class="text-orange-500"></i>
+                            </div>
+                            <p class="font-bold text-lg self-center">Имя пользователя</p>
                         </div>
-                        <p class="font-bold text-lg self-center">Имя пользователя</p>
+                        <button class="self-center hover:underline bg-bg-tertiary p-2 px-4 rounded-full hover:bg-bg-hover transition-all">Удалить</button>
                     </div>
                     <p class="text-md ml-15">Текст комментария</p>
                 </div>
