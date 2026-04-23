@@ -2,6 +2,7 @@ import '../style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos'; 
 import { formatRelativeTime } from './dateConverter';
+import { showNotification } from './notification';
 
 interface Video {
     id: number;
@@ -173,7 +174,7 @@ async function initPlayer() {
 
     const video = await getVideoById(videoId);
     if (!video) {
-        alert('Не удалось загрузить видео');
+        showNotification('Не удалось загрузить видео');
         return;
     }
     if(likeCounter){
