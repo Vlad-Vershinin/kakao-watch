@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kakao-watch</title>
+    <link rel="stylesheet" href="/frontend/src/style.css">
+  </head>
+  <body class="flex flex-col min-h-screen max-w-full">
+    <div id="app"></div>
+    <header class="bg-bg-primary shadow-md flex items-center justify-between py-3 px-3 sm:px-8 lg:px-16 border-b border-border-light gap-2">
+      <a href="/" class="flex items-center gap-2 shrink-0">
+        <img src="/logo.png" alt="Logo" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm object-cover">
+        <h1 class="text-contrast text-xl sm:text-2xl font-bold hidden sm:block">Kakao-watch</h1>
+      </a>
+
+      <div class="flex-1 max-w-lg mx-2 sm:mx-4">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i data-lucide="search" class="w-4 h-4 text-text-tertiary"></i>
+          </div>
+          <input type="text" class="w-full pl-10 pr-4 py-2 text-sm sm:text-base border border-border-light rounded-lg focus:ring-2 focus:ring-contrast focus:border-transparent outline-none transition-all text-text-primary placeholder-text-tertiary" placeholder="Поиск">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0" id="auth-buttons">
+      </div>
+    </header>
+    <main class="flex flex-1">
+      <div id="notifications" class="absolute pointer-events-none justify-end flex flex-1 z-10 w-full px-5">
+        
+        
+      </div>
+      <div class="flex">
+        <div class="flex flex-col text-[15px] uppercase border-r border-text-tertiary py-5 px-2 gap-3 max-w-60 transition-all">
+          <div class="flex gap-2 hover:bg-bg-hover pr-6 rounded-md transition-all">
+            <div class="w-10 h-10 self-center content-center justify-center" id="LinkHome"><i data-lucide="house" class="w-5 h-5 text-text-tertiary justify-self-center"></i></div>
+            <a href="" class="self-center">Домой</a>
+          </div>
+
+          <div class="flex gap-2 hover:bg-bg-hover pr-6 rounded-md transition-all">
+            <div class="w-10 h-10 self-center content-center justify-center" id="LinkTrends"><i data-lucide="chart-no-axes-column-decreasing" class="w-5 h-5 text-text-tertiary justify-self-center"></i></div>
+            <a href="" class="self-center">Тренды</a>
+          </div>
+          <hr class="my-4">
+          
+          <div class="flex gap-2 hover:bg-bg-hover  pr-6 rounded-md transition-all">
+            <div class="w-10 h-10 self-center content-center justify-center" id="LinkAbout"><i data-lucide="info" class="w-5 h-5 text-text-tertiary justify-self-center"></i></div>
+            <a href="src/html/about.html" class="self-center">О нас</a>
+          </div>
+          <div class="flex gap-2 hover:bg-bg-hover  pr-6 rounded-md transition-all">
+            <div class="w-10 h-10 self-center content-center justify-center" id="LinkContacts"><i data-lucide="book-user" class="w-5 h-5 text-text-tertiary justify-self-center"></i></div>
+            <a href="src/html/contacts.html" class="self-center">Контакты</a>
+          </div>
+        </div>
+
+    </div>
+        <div class="flex flex-col flex-1" id="">
+          <div class="flex-1 p-4 sm:p-6">
+              <div id="videoFeed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  </div>
+                <div id="moreOptions" class="w-full py-8 flex justify-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+              </div>
+          </div>
+        </div>
+    </main>
+    <script type="module" src="../ts/adminPanel.ts"></script>
+  </body>
+</html>
