@@ -1,24 +1,10 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
 import { showNotification } from './notification';
+import type { Video } from './interfaces';
 
 createIcons({ icons });
 
-
-
-interface Video {
-    id: number;
-    name: string;
-    description?: string;
-    thumbnailPath: string;
-    duration: number;
-    authorName: string;
-    authorId: number;
-    views: number;
-    likes: number;
-    dislikes: number;
-    dateTime: string;
-}
 
 async function getVideoById(id: string) {
     try {

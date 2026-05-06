@@ -1,22 +1,9 @@
 import './style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './ts/get-videos';
+import type { Video } from './ts/interfaces';
 
 createIcons({ icons });
-
-
-interface Video {
-    id: number;
-    name: string;
-    description?: string;
-    thumbnailPath: string;
-    duration: number;
-    authorName: string;
-    views: number;
-    likes: number;
-    dislikes: number;
-    dateTime: string;
-}
 
 function isValidJwt(token: string): boolean {
     if (!token) return false;

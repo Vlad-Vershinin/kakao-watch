@@ -37,7 +37,7 @@ form.addEventListener('submit', async (event) => {
         const data = await response.json();
         localStorage.setItem('token', data.token);
         //window.history.back();
-        window.location.href = '/';
+        window.location.href = './src/html/adminPanel.html';
     } catch (err) {
         console.error('Ошибка сети:', err);
         alert('Не удалось подключиться к серверу');

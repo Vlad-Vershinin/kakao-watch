@@ -97,6 +97,20 @@ string generateJwtToken(User user)
     return new JwtSecurityTokenHandler().WriteToken(token);
 }
 
+app.MapGet("/api/auth/me", (ClaimsPrincipal user) =>
+{
+    var id = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var name = user.FindFirst(ClaimTypes.Name)?.Value;
+    var role = user.FindFirst(ClaimTypes.Role)?.Value;
+
+    return Results.Ok(new
+    {
+        Id = id,
+        Name = name,
+        Role = role
+    });
+}).RequireAuthorization();
+
 app.MapPost("/api/register", async (RegisterDto dto, AppDbContext db) =>
 {
     if (string.IsNullOrEmpty(dto.Name) || 
@@ -271,7 +285,15 @@ app.MapGet("/api/videos", async (
 
 app.MapPatch("/api/videos/{id}", async (int id, UpdateVideoDto dto, AppDbContext db) =>
 {
+    var video = await db.Videos.FindAsync(id);
+    if (video == null) return Results.NotFound();
 
+    video.Name = dto.Name;
+    video.Description = dto.Description;
+    video.Access = dto.Access;
+
+    await db.SaveChangesAsync();
+    return Results.Ok();
 }).RequireAuthorization();
 
 app.MapGet("/api/videos/stream/{id}", async (int id, AppDbContext db) =>

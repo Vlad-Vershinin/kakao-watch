@@ -3,20 +3,7 @@ import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos'; 
 import { formatRelativeTime } from './dateConverter';
 import { showNotification } from './notification';
-
-interface Video {
-    id: number;
-    name: string;
-    description?: string;
-    thumbnailPath: string;
-    duration: number;
-    authorName: string;
-    authorId: number;
-    views: number;
-    likes: number;
-    dislikes: number;
-    dateTime: string;
-}
+import type { Video } from './interfaces';
 
 function isValidJwt(token: string): boolean {
     if (!token) return false;
