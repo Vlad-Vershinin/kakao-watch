@@ -10,6 +10,8 @@ interface Video {
     likes: number;
     dislikes: number;
     dateTime: string;
+    isSubscribed?: boolean;
+    likedStatus?: boolean | null;
 }
 
 export type { Video };

@@ -224,13 +224,28 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
     return Results.Ok();
 }).RequireAuthorization();
 
-app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
+app.MapGet("/api/videos/{id}", async (int id, AppDbContext db, HttpContext context) =>
 {
     var video = await db.Videos
         .Include(v => v.Author)
         .FirstOrDefaultAsync(v => v.Id == id);
 
     if (video == null) return Results.NotFound();
+
+    bool? likedStatus = null;
+    bool isSubscribed = false;
+
+    var userIdClaim = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!string.IsNullOrEmpty(userIdClaim))
+    {
+        int currentUserId = int.Parse(userIdClaim);
+
+        isSubscribed = await db.Subscriptions.AnyAsync(s =>
+            s.SubscriberId == currentUserId && s.AuthorId == video.AuthorId);
+
+        var likeEntry = await db.Likes.FirstOrDefaultAsync(l => l.VideoId == id && l.UserId == currentUserId);
+        if (likeEntry != null) likedStatus = likeEntry.IsLike;
+    }
 
     return Results.Ok(new
     {
@@ -240,8 +255,11 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
         video.Path,
         AuthorName = video.Author.Name,
         video.AuthorId,
+        IsSubscribed = isSubscribed,
+        LikedStatus = likedStatus,
         video.Duration,
         video.Likes,
+        video.Dislikes,
         video.DateTime,
         video.Views
     });
@@ -308,20 +326,66 @@ app.MapGet("/api/videos/stream/{id}", async (int id, AppDbContext db) =>
     return Results.File(filePath, contentType: "video/mp4", enableRangeProcessing: true);
 });
 
-app.MapPatch("/api/videos/{id}/like", async (int id, AppDbContext db) =>
+app.MapPatch("/api/videos/{id}/like", async (int id, AppDbContext db, HttpContext context) =>
 {
+    var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     var video = await db.Videos.FindAsync(id);
     if (video == null) return Results.NotFound();
-    video.Likes += 1;
+
+    var existingLike = await db.Likes.FirstOrDefaultAsync(l => l.VideoId == id && l.UserId == userId);
+
+    if (existingLike != null)
+    {
+        if (existingLike.IsLike)
+        {
+            db.Likes.Remove(existingLike);
+            video.Likes = (uint)Math.Max(0, (int)video.Likes - 1);
+        }
+        else
+        {
+            existingLike.IsLike = true;
+            video.Likes += 1;
+            video.Dislikes = (uint)Math.Max(0, (int)video.Dislikes - 1);
+        }
+    }
+    else
+    {
+        db.Likes.Add(new Like { UserId = userId, VideoId = id, IsLike = true });
+        video.Likes += 1;
+    }
+
     await db.SaveChangesAsync();
     return Results.Ok();
 }).RequireAuthorization();
 
-app.MapPatch("/api/videos/{id}/dislike", async (int id, AppDbContext db) =>
+app.MapPatch("/api/videos/{id}/dislike", async (int id, AppDbContext db, HttpContext context) =>
 {
+    var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
     var video = await db.Videos.FindAsync(id);
     if (video == null) return Results.NotFound();
-    video.Dislikes += 1;
+
+    var existingLike = await db.Likes.FirstOrDefaultAsync(l => l.VideoId == id && l.UserId == userId);
+
+    if (existingLike != null)
+    {
+        if (!existingLike.IsLike)
+        {
+            db.Likes.Remove(existingLike);
+            video.Dislikes = (uint)Math.Max(0, (int)video.Dislikes - 1);
+        }
+        else
+        {
+            existingLike.IsLike = false;
+            video.Dislikes += 1;
+            video.Likes = (uint)Math.Max(0, (int)video.Likes - 1);
+        }
+    }
+    else
+    {
+        db.Likes.Add(new Like { UserId = userId, VideoId = id, IsLike = false });
+        video.Dislikes += 1;
+    }
+
     await db.SaveChangesAsync();
     return Results.Ok();
 }).RequireAuthorization();
@@ -389,6 +453,30 @@ app.MapDelete("/api/comments/{id}", async (int id, AppDbContext db, HttpContext 
     return Results.Ok();
 }).RequireAuthorization();
 
+app.MapPost("/api/users/{authorId}/subscribe", async (int authorId, AppDbContext db, HttpContext context) =>
+{
+    var subscriberId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+    if (subscriberId == authorId) return Results.BadRequest("Нельзя подписаться на самого себя");
 
+    var exists = await db.Subscriptions.AnyAsync(s => s.SubscriberId == subscriberId && s.AuthorId == authorId);
+    if (exists) return Results.Ok();
+
+    db.Subscriptions.Add(new Subscription { SubscriberId = subscriberId, AuthorId = authorId });
+    await db.SaveChangesAsync();
+    return Results.Ok();
+}).RequireAuthorization();
+
+app.MapDelete("/api/users/{authorId}/unsubscribe", async (int authorId, AppDbContext db, HttpContext context) =>
+{
+    var subscriberId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+    var sub = await db.Subscriptions.FirstOrDefaultAsync(s => s.SubscriberId == subscriberId && s.AuthorId == authorId);
+
+    if (sub != null)
+    {
+        db.Subscriptions.Remove(sub);
+        await db.SaveChangesAsync();
+    }
+    return Results.Ok();
+}).RequireAuthorization();
 
 app.Run();

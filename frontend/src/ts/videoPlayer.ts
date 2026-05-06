@@ -149,7 +149,7 @@ function formatDuration(seconds: number): string {
 
 var likeCounter = document.getElementById('videoLikes');
 var dislikeCounter = document.getElementById('videoDislikes');
-
+const subscribeBtn = document.getElementById('subscribeButton') as HTMLButtonElement;
 
 async function initPlayer() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -166,15 +166,12 @@ async function initPlayer() {
         showNotification('Не удалось загрузить видео');
         return;
     }
-    if(likeCounter){
-        likeCounter.innerHTML = `${video.likes}`;
-    }
-    if(dislikeCounter){
-        if(!video.dislikes){
-            video.dislikes = 0;
-        }
-        dislikeCounter.innerHTML = `${video.dislikes}`;
-    }
+    if (likeCounter) likeCounter.textContent = String(video.likes);
+    if (dislikeCounter) dislikeCounter.textContent = String(video.dislikes);
+
+    updateLikeVisuals(video.likedStatus);
+    updateSubscribeVisuals(video.isSubscribed, video.authorId);
+
     viewVideo();
     const videoElement = document.querySelector('video') as HTMLVideoElement;
     const sourceElement = videoElement?.querySelector('source');
@@ -189,6 +186,8 @@ async function initPlayer() {
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
     document.getElementById('videoViews')!.textContent = `${video.views} просмотров`;
     document.getElementById('videoLikes')!.textContent = String(video.likes || 0);
+    console.log(video.dislikes)
+    document.getElementById('videoDislikes')!.textContent = String(video.dislikes || 0);
     const dateStr = video.dateTime;
     const normalizedDate = dateStr.endsWith('Z') ? dateStr : dateStr + 'Z';
     document.getElementById('videoDate')!.textContent = formatRelativeTime(new Date(normalizedDate));
@@ -199,6 +198,40 @@ async function initPlayer() {
 
     await loadRecommendations(currentPage);
     createIcons({ icons });
+}
+
+function updateLikeVisuals(status: boolean | null | undefined) {
+    const likeBtn = document.getElementById('likeButton');
+    const dislikeBtn = document.getElementById('dislikeButton');
+    
+    likeBtn?.classList.remove('text-orange-500');
+    dislikeBtn?.classList.remove('text-orange-500');
+
+    if (status === true) {
+        likeBtn?.classList.add('text-orange-500');
+    } else if (status === false) {
+        dislikeBtn?.classList.add('text-orange-500');
+    }
+}
+
+function updateSubscribeVisuals(isSubscribed: boolean | undefined, authorId: number) {
+    if (!subscribeBtn) return;
+    
+    const currentUserId = getUserIdFromToken();
+    if (currentUserId === authorId) {
+        subscribeBtn.style.display = 'none';
+        return;
+    }
+
+    if (isSubscribed) {
+        subscribeBtn.textContent = 'Вы подписаны';
+        subscribeBtn.classList.replace('bg-contrast', 'bg-bg-tertiary');
+        subscribeBtn.classList.add('text-text-primary');
+    } else {
+        subscribeBtn.textContent = 'Подписаться';
+        subscribeBtn.classList.replace('bg-bg-tertiary', 'bg-contrast');
+        subscribeBtn.classList.remove('text-text-primary');
+    }
 }
 
 function getUserIdFromToken(): number | null {
@@ -230,53 +263,34 @@ document.addEventListener('DOMContentLoaded', () => {
 var likeButton = document.getElementById('likeButton');
 var dislikeButton = document.getElementById('dislikeButton');
 
-likeButton?.addEventListener("click", ()=>{likeVideo();})
-dislikeButton?.addEventListener("click", ()=>{dislikeVideo();})
-
-async function likeVideo(){
-    console.log('getting string')
+async function toggleLike(isLike: boolean) {
     const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
     const token = localStorage.getItem('token');
 
-    const videoId = urlParams.get('id');
-    if (videoId){
-        const video = await getVideoById(videoId);
-    
-        if (!video) return;
-
-        let respose = await fetch(`/api/videos/${videoId}/like`, {method:'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },})
-        
-        if(likeCounter && respose.ok){
-            video.likes += 1;
-            likeCounter.innerHTML = `${video.likes}`;
-        }
+    if (!token) {
+        showNotification('Войдите, чтобы оценивать видео');
+        return;
     }
 
-}
-async function dislikeVideo(){
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = localStorage.getItem('token');
+    const endpoint = isLike ? 'like' : 'dislike';
+    const response = await fetch(`/api/videos/${videoId}/${endpoint}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-    const videoId = urlParams.get('id');
-    if (videoId){
-        const video = await getVideoById(videoId);
-    
-        if (!video) return;
-
-        let respose = await fetch(`/api/videos/${videoId}/dislike`, {method:'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },})
-        
-        if(dislikeCounter && respose.ok){
-            video.dislikes += 1;
-            dislikeCounter.innerHTML = `${video.dislikes}`;
+    if (response.ok) {
+        const updatedVideo = await getVideoById(videoId!);
+        if (updatedVideo) {
+            if (likeCounter) likeCounter.textContent = String(updatedVideo.likes);
+            if (dislikeCounter) dislikeCounter.textContent = String(updatedVideo.dislikes);
+            updateLikeVisuals(updatedVideo.likedStatus);
         }
     }
 }
+
+likeButton?.addEventListener("click", () => toggleLike(true));
+dislikeButton?.addEventListener("click", () => toggleLike(false));
 
 async function viewVideo(){
     const urlParams = new URLSearchParams(window.location.search);
@@ -292,6 +306,34 @@ async function viewVideo(){
         });
     }
 }
+
+subscribeBtn?.addEventListener('click', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        showNotification('Войдите, чтобы подписаться');
+        return;
+    }
+
+    const video = await getVideoById(videoId!);
+    if (!video) return;
+
+    const method = video.isSubscribed ? 'DELETE' : 'POST';
+    const action = video.isSubscribed ? 'unsubscribe' : 'subscribe';
+
+    const response = await fetch(`/api/users/${video.authorId}/${action}`, {
+        method: method,
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+        const updatedVideo = await getVideoById(videoId!);
+        updateSubscribeVisuals(updatedVideo?.isSubscribed, video.authorId);
+        showNotification(video.isSubscribed ? 'Подписка отменена' : 'Вы подписались!');
+    }
+});
 
 const videoElement = document.getElementById('mainVideo') as HTMLVideoElement;
 
