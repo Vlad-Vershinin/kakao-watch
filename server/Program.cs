@@ -215,7 +215,8 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
         DateTime = DateTime.UtcNow,
         Duration = TimeSpan.FromSeconds(duration),
         Likes = 0,
-        Views = 0
+        Views = 0,
+        Dislikes = 0
     };
 
     db.Videos.Add(video);
@@ -261,9 +262,39 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db, HttpContext conte
         video.Likes,
         video.Dislikes,
         video.DateTime,
-        video.Views
+        video.Views,
     });
 });
+
+app.MapDelete("/api/videos/{id}", async (int id, AppDbContext db, HttpContext context) =>
+{
+    var video = await db.Videos.FindAsync(id);
+    if (video == null) return Results.NotFound("Видео не найдено");
+
+    var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+    var userRole = context.User.FindFirst(ClaimTypes.Role)?.Value;
+
+    bool isAuthor = video.AuthorId == userId;
+    bool isAdmin = userRole == UserRole.Admin.ToString();
+
+    if (!isAuthor && !isAdmin)
+    {
+        return Results.Forbid();
+    }
+
+    var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+    var videoFilePath = Path.Combine(uploadsPath, video.Path.TrimStart('/'));
+    if (File.Exists(videoFilePath)) File.Delete(videoFilePath);
+
+    var thumbFilePath = Path.Combine(uploadsPath, video.ThumbnailPath.TrimStart('/'));
+    if (File.Exists(thumbFilePath)) File.Delete(thumbFilePath);
+
+    db.Videos.Remove(video);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new { message = "Видео успешно удалено" });
+}).RequireAuthorization();
 
 app.MapGet("/api/videos", async (
     [FromQuery] int page, 
@@ -441,16 +472,30 @@ app.MapPost("/api/videos/{id}/comments", async (int id, CommentDto dto, AppDbCon
 
 app.MapDelete("/api/comments/{id}", async (int id, AppDbContext db, HttpContext context) =>
 {
-    var comment = await db.Comments.FindAsync(id);
+    var comment = await db.Comments
+        .Include(c => c.Author)
+        .FirstOrDefaultAsync(c => c.Id == id);
 
-    if (comment == null) return Results.NotFound();
+    if (comment == null) return Results.NotFound("Комментарий не найден");
+
+    var video = await db.Videos.FindAsync(comment.VideoId);
+
     var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-    if (comment.AuthorId != userId) return Results.Forbid();
+    var userRole = context.User.FindFirst(ClaimTypes.Role)?.Value;
+
+    bool isCommentAuthor = comment.AuthorId == userId;
+    bool isAdmin = userRole == UserRole.Admin.ToString();
+    bool isVideoOwner = video?.AuthorId == userId;
+
+    if (!isCommentAuthor && !isAdmin && !isVideoOwner)
+    {
+        return Results.Forbid();
+    }
 
     db.Comments.Remove(comment);
     await db.SaveChangesAsync();
 
-    return Results.Ok();
+    return Results.Ok(new { message = "Комментарий удален" });
 }).RequireAuthorization();
 
 app.MapPost("/api/users/{authorId}/subscribe", async (int authorId, AppDbContext db, HttpContext context) =>

@@ -122,7 +122,7 @@ async function loadVideosIntoFeed(page: number) {
                 <div class="flex justify-between mt-3 text-text-tertiary text-xs">
                     <div class="flex items-center gap-4">
                         <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4"></i> ${video.views}</span>
-                        <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> ${video.likes}</span>
+                        <span class="flex items-center gap-1"><i data-lucide="thumbs-up" class="w-4 h-4"></i> ${video.likes}</span>
                     </div>
                     <span class="flex items-center gap-1">
                         <i data-lucide="timer" class="w-4 h-4"></i>

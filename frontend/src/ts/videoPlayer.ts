@@ -17,6 +17,25 @@ function isValidJwt(token: string): boolean {
     }
 }
 
+function getUserNameFromToken(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+
+        return payload["unique_name"] || 
+               payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || 
+               payload["name"] || 
+               null;
+    } catch (err) {
+        console.error('Ошибка при извлечении имени из токена:', err);
+        return null;
+    }
+}
+
 function showAuthState(): void {
     const container = document.getElementById('auth-buttons')!;
     const token = localStorage.getItem('token');
@@ -161,6 +180,27 @@ async function initPlayer() {
         return;
     }
 
+    if (videoId) {
+        loadComments(videoId);
+        
+        const sendBtn = document.getElementById('sendCommentBtn');
+        sendBtn?.addEventListener('click', sendComment);
+        
+        const commentInput = document.getElementById('commentInput') as HTMLTextAreaElement;
+
+        commentInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendComment();
+            }
+        });
+
+        commentInput?.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+
     const video = await getVideoById(videoId);
     if (!video) {
         showNotification('Не удалось загрузить видео');
@@ -180,7 +220,7 @@ async function initPlayer() {
         sourceElement.src = `/api/videos/stream/${video.id}`;
         videoElement.load();
     }
-    (document.getElementById('ChangeAttributesLink')! as HTMLLinkElement).href = `/src/html/change-video-attributes.html?${videoId}`;
+    (document.getElementById('ChangeAttributesLink')! as HTMLLinkElement).href = `/src/html/change-video-attributes.html?id=${videoId}`;
     document.getElementById('videoTitle')!.textContent = video.name;
     document.getElementById('videoDescription')!.textContent = video.description || 'Нет описания';
     document.getElementById('authorName')!.textContent = video.authorName || 'Автор';
@@ -195,6 +235,38 @@ async function initPlayer() {
     if(getUserIdFromToken() == video.authorId){
         document.getElementById('videoAccessPanel')!.classList.remove('hidden');
     }
+
+    const authorAvatarContainer = document.querySelector('.author-avatar-block');
+
+    if (authorAvatarContainer && video.authorName) {
+        const initials = video.authorName.substring(0, 1).toUpperCase();
+        authorAvatarContainer.innerHTML = `
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shrink-0 border-2 border-white shadow-md">
+                <span class="text-white font-bold text-lg">${initials}</span>
+            </div>
+        `;
+    }
+
+    if (token) {
+        const userName = getUserNameFromToken();
+        const currentUserInitials = document.getElementById('currentUserInitials');
+        if (currentUserInitials && userName) {
+            currentUserInitials.textContent = userName.substring(0, 1).toUpperCase();
+        }
+    }
+
+    const authorNameEl = document.getElementById('authorName');
+    const authorInitialsEl = document.getElementById('authorInitials');
+
+    if (authorNameEl) authorNameEl.textContent = video.authorName;
+    if (authorInitialsEl && video.authorName) {
+        authorInitialsEl.textContent = video.authorName.substring(0, 1).toUpperCase();
+    }
+
+    updateSubscribeButton(video.isSubscribed);
+
+    const subBtn = document.getElementById('subscribeBtn');
+    subBtn?.addEventListener('click', () => toggleSubscription(video.authorId));
 
     await loadRecommendations(currentPage);
     createIcons({ icons });
@@ -359,5 +431,164 @@ function setupVolumePersistence() {
         videoElement.muted = savedMuted === 'true';
     }
 }
+
+async function loadComments(videoId: string) {
+    try {
+        const response = await fetch(`/api/videos/comments?id=${videoId}`);
+        if (!response.ok) return;
+        const comments = await response.json();
+        renderComments(comments);
+    } catch (err) {
+        console.error("Ошибка загрузки комментариев:", err);
+    }
+}
+
+function getUserRoleFromToken(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+        const payload = token.split('.')[1];
+        const decoded = atob(payload);
+        const { role } = JSON.parse(decoded);
+        return role || null;
+    } catch (err) {
+        console.error("Ошибка при декодировании токена:", err);
+        return null;
+    }
+}
+
+let isSubscribed = false;
+
+function updateSubscribeButton(subscribed: boolean) {
+    isSubscribed = subscribed;
+    const btn = document.getElementById('subscribeBtn');
+    if (!btn) return;
+
+    if (isSubscribed) {
+        btn.textContent = 'Вы подписаны';
+        btn.className = 'px-6 py-2 rounded-full font-bold transition-all bg-bg-tertiary text-text-secondary hover:bg-red-50 hover:text-red-500 border border-border-light';
+    } else {
+        btn.textContent = 'Подписаться';
+        btn.className = 'px-6 py-2 rounded-full font-bold transition-all bg-contrast hover:bg-contrast-hover text-text-inverse shadow-md';
+    }
+}
+
+async function toggleSubscription(authorId: number) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showNotification('Войдите, чтобы подписываться на каналы');
+        return;
+    }
+
+    const action = isSubscribed ? 'unsubscribe' : 'subscribe';
+    const method = isSubscribed ? 'DELETE' : 'POST';
+
+    try {
+        const response = await fetch(`/api/users/${authorId}/${action}`, {
+            method: method,
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            updateSubscribeButton(!isSubscribed);
+        } else {
+            const error = await response.text();
+            showNotification(error || 'Ошибка при подписке');
+        }
+    } catch (err) {
+        console.error('Ошибка подписки:', err);
+    }
+}
+
+function renderComments(comments: any[]) {
+    const container = document.getElementById('commentsList');
+    if (!container) return;
+
+    const currentUserId = getUserIdFromToken(); 
+    const userRole = getUserRoleFromToken();
+
+    container.innerHTML = comments.map(c => `
+        <div class="group flex gap-3 p-3 rounded-xl hover:bg-bg-tertiary/30 transition-all duration-200" data-comment-id="${c.id}">
+            <div class="hidden sm:flex w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 items-center justify-center shrink-0 shadow-sm">
+                <span id="currentUserInitials" class="text-white font-bold text-xs">${c.authorName.substring(0, 1).toUpperCase()}</span>
+            </div>
+
+            <div class="flex-1 min-w-0 flex flex-col">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-sm">${c.authorName}</span>
+                        <span class="text-[10px] text-text-tertiary">${formatRelativeTime(c.sentAt)}</span>
+                    </div>
+                    ${(c.authorId === currentUserId) ? `
+                    <button onclick="deleteComment(${c.id})" class="opacity-0 group-hover:opacity-100 p-1 text-text-tertiary hover:text-red-500 transition-all">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>` : ''}
+                </div>
+                <p class="text-sm text-text-secondary leading-normal break-words whitespace-pre-wrap mt-1">${c.content}</p>
+            </div>
+        </div>
+    `).join('');
+    
+    createIcons({ icons });
+}
+
+async function sendComment() {
+    const input = document.getElementById('commentInput') as HTMLInputElement;
+    const content = input.value.trim();
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+        showNotification('Войдите, чтобы оставить комментарий');
+        return;
+    }
+    if (!content) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
+
+    try {
+        const response = await fetch(`/api/videos/${videoId}/comments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ content })
+        });
+
+        if (response.ok) {
+            input.value = '';
+            input.style.height = 'auto'; 
+            input.style.height = '40px';
+            
+            const videoId = new URLSearchParams(window.location.search).get('id');
+            loadComments(videoId!);
+        }
+    } catch (err) {
+        showNotification('Ошибка при отправке');
+    }
+}
+
+async function deleteComment(commentId: number) {
+    if (!confirm('Удалить комментарий?')) return;
+    
+    const token = localStorage.getItem('token');
+    try {
+        const response = await fetch(`/api/comments/${commentId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+            const videoId = new URLSearchParams(window.location.search).get('id');
+            loadComments(videoId!);
+        }
+    } catch (err) {
+        console.error("Ошибка удаления:", err);
+    }
+}
+
+(window as any).deleteComment = deleteComment;
 
 setupVolumePersistence();

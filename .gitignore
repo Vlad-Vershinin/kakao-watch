@@ -47,3 +47,4 @@ server/obj
 server/wwwroot/
 app.db
 app.db*
+server/ffprobe.exe

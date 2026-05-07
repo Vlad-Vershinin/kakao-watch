@@ -3,8 +3,6 @@ import { createIcons, icons } from 'lucide';
 import { showNotification } from './notification';
 import type { Video } from './interfaces';
 
-createIcons({ icons });
-
 
 async function getVideoById(id: string) {
     try {
@@ -16,6 +14,16 @@ async function getVideoById(id: string) {
         return null;
     }
 }
+
+
+document.getElementById("goBackButton")!.addEventListener("click", (()=>{history.back()}));
+document.getElementById("goBackButton")!.addEventListener("click", (()=>{attemptToUpdateAttributes()}));
+
+
+async function attemptToUpdateAttributes() {
+    
+}
+
 
 async function initPlayer() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -71,5 +79,50 @@ function getUserIdFromToken(): number | null {
         return null;
     }
 }
+
+const deleteBtn = document.getElementById('deleteBtn');
+
+if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoId = urlParams.get('id');
+
+        if (!videoId) return;
+
+        if (!confirm('Вы уверены, что хотите навсегда удалить это видео?')) {
+            return;
+        }
+
+        const success = await deleteVideo(videoId);
+        
+        if (success) {
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
+        } else {
+            showNotification('Ошибка при удалении видео');
+        }
+    });
+}
+
+async function deleteVideo(id: string): Promise<boolean> {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`/api/videos/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response.ok;
+    } catch (err) {
+        console.error('Ошибка при отправке запроса на удаление:', err);
+        return false;
+    }
+}
+
+createIcons({ icons });
 
 initPlayer();

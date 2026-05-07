@@ -57,12 +57,53 @@
 
     </div>
         <div class="flex flex-col flex-1" id="">
-          <div class="flex-1 p-4 sm:p-6">
-              <div id="videoFeed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <div class="flex flex-col flex-1 p-4 sm:p-6 gap-5">
+            <div class="flex flex-col">
+              <input type="text" name="inputNickname" id="inputNickname" placeholder="Введите имя пользователя или название видео"
+              class="border rounded-md border-text-secondary px-4 py-2">
+            </div>
+            <div class="flex flex-col flex-1 gap-2" id="foundVideos">
+
+              <!-- Пример -->
+
+              <div class="flex bg-bg-tertiary min-h-10 rounded-md p-2 pr-5 gap-3">
+                <div class="flex relative bg-black min-h-30 min-w-50 rounded-md">
+                  <img src="#" alt="" class="flex bg-gray-600 min-h-30 min-w-50 rounded-md">
+                  <div class="absolute right-2 bottom-2">
+                    <p class="text-white bg-black rounded-md px-1 opacity-80">99:99</p>
+
+                  </div>
+                </div>
+                <div class="flex flex-1 flex-col self-stretch">
+                  <h2 class="text-[20px] py-3">Название ролика</h2>
+                  <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center border border-orange-200">
+                        <i data-lucide="user" class="text-orange-500"></i>
+                    </div>
+                    <div>
+                        <p id="authorName" class="font-bold text-lg">Канал</p>
+                        <p class="text-xs text-text-tertiary">Подписчиков: 0</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-col items-stretch justify-around">
+                  <button class="rounded-full p-2 bg-bg-secondary hover:bg-bg-hover transition-all"><i data-lucide="trash-2"></i></button>
+                  <button class="rounded-full p-2 bg-bg-secondary hover:bg-bg-hover transition-all"><i data-lucide="pencil"></i></button>
+                </div>
+              </div>
+
+              <!-- Конец примера -->
+
+
+            </div>
+
+
+
+              <!-- <div id="videoFeed" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   </div>
                 <div id="moreOptions" class="w-full py-8 flex justify-center">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-              </div>
+              </div> -->
           </div>
         </div>
     </main>
