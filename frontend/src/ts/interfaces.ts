@@ -11,6 +11,7 @@ interface Video {
     dislikes: number;
     dateTime: string;
     isSubscribed: boolean;
+    subscribersCount?: number;
     likedStatus?: boolean | null;
 }
 

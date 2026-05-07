@@ -263,6 +263,7 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db, HttpContext conte
         video.Dislikes,
         video.DateTime,
         video.Views,
+        SubscribersCount = await db.Subscriptions.CountAsync(s => s.AuthorId == video.AuthorId)
     });
 });
 
