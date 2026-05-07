@@ -2,6 +2,7 @@ import '../style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos'; 
 import type { Video } from './interfaces';
+import { showAuthState } from './authStateIdentifier';
 
 function isValidJwt(token: string): boolean {
     if (!token) return false;
@@ -116,5 +117,16 @@ function formatDuration(seconds: number): string {
 
 loadVideosIntoFeed(currentPage);
 initInfiniteScroll();
+showAuthState();
+
+
+
+
+
+
+
+
+
+
 
 createIcons({icons});
