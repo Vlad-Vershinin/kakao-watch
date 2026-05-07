@@ -201,7 +201,8 @@ app.MapPost("/api/videos/upload", async (HttpContext context, AppDbContext db) =
         DateTime = DateTime.UtcNow,
         Duration = TimeSpan.FromSeconds(duration),
         Likes = 0,
-        Views = 0
+        Views = 0,
+        Dislikes = 0
     };
 
     db.Videos.Add(video);
@@ -229,7 +230,8 @@ app.MapGet("/api/videos/{id}", async (int id, AppDbContext db) =>
         video.Duration,
         video.Likes,
         video.DateTime,
-        video.Views
+        video.Views,
+        video.Dislikes
     });
 });
 

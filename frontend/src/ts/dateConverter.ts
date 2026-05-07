@@ -1,3 +1,6 @@
+type DateTimeInput = Date | string | number;
+
+
 function pluralize(
     count: number, 
     forms: [string, string, string]
@@ -15,6 +18,9 @@ function pluralize(
     return forms[2];
 }
 
+/**
+ * Склоняет единицу измерения времени
+ */
 function formatTimeUnit(value: number, unit: string): string {
     const forms: Record<string, [string, string, string]> = {
         second: ['секунду', 'секунды', 'секунд'],
@@ -32,15 +38,19 @@ function formatTimeUnit(value: number, unit: string): string {
     return `${value} ${pluralize(value, unitForms)}`;
 }
 
-export function formatRelativeTime(dateInput: Date | string | number): string {
-    const targetDate = new Date(dateInput);
+/**
+ * Конвертирует дату в человекочитаемый формат относительно текущего момента
+ */
+export function formatRelativeTime(date: DateTimeInput): string {
+    const targetDate = new Date(date);
+    const now = new Date();
     
+    // Проверка валидности даты
     if (isNaN(targetDate.getTime())) {
-        console.error('Invalid date provided:', dateInput);
-        return 'недавно';
+        throw new Error('Invalid date provided');
     }
 
-    const diffMs = new Date().getTime() - targetDate.getTime();
+    const diffMs = now.getTime() - targetDate.getTime();
     const diffSeconds = Math.floor(diffMs / 1000);
     const diffMinutes = Math.floor(diffSeconds / 60);
     const diffHours = Math.floor(diffMinutes / 60);
@@ -49,6 +59,45 @@ export function formatRelativeTime(dateInput: Date | string | number): string {
     const diffMonths = Math.floor(diffDays / 30);
     const diffYears = Math.floor(diffDays / 365);
 
+    // Будущее время
+    if (diffMs < 0) {
+        const futureDiff = Math.abs(diffMs);
+        const futureSeconds = Math.floor(futureDiff / 1000);
+        
+        if (futureSeconds < 60) {
+            return `через ${formatTimeUnit(futureSeconds, 'second')}`;
+        }
+        
+        const futureMinutes = Math.floor(futureSeconds / 60);
+        if (futureMinutes < 60) {
+            return `через ${formatTimeUnit(futureMinutes, 'minute')}`;
+        }
+        
+        const futureHours = Math.floor(futureMinutes / 60);
+        if (futureHours < 24) {
+            return `через ${formatTimeUnit(futureHours, 'hour')}`;
+        }
+        
+        const futureDays = Math.floor(futureHours / 24);
+        if (futureDays < 7) {
+            return `через ${formatTimeUnit(futureDays, 'day')}`;
+        }
+        
+        const futureWeeks = Math.floor(futureDays / 7);
+        if (futureWeeks < 5) {
+            return `через ${formatTimeUnit(futureWeeks, 'week')}`;
+        }
+        
+        const futureMonths = Math.floor(futureDays / 30);
+        if (futureMonths < 12) {
+            return `через ${formatTimeUnit(futureMonths, 'month')}`;
+        }
+        
+        const futureYears = Math.floor(futureDays / 365);
+        return `через ${formatTimeUnit(futureYears, 'year')}`;
+    }
+
+    // Настоящее / прошлое время
     if (diffSeconds < 5) {
         return 'сейчас';
     }

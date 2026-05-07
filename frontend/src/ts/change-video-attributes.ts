@@ -31,6 +31,18 @@ async function getVideoById(id: string) {
     }
 }
 
+
+document.getElementById("goBackButton")!.addEventListener("click", (()=>{history.back()}));
+document.getElementById("goBackButton")!.addEventListener("click", (()=>{attemptToUpdateAttributes()}));
+
+
+
+
+async function attemptToUpdateAttributes() {
+    
+}
+
+
 async function initPlayer() {
     const urlParams = new URLSearchParams(window.location.search);
     const token = localStorage.getItem('token');
