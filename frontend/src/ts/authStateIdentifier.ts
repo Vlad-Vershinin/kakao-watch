@@ -6,6 +6,14 @@ export function showAuthState(): void {
 
     if (isValidJwt(token!)) {
         container.innerHTML = `
+            ${getUserRoleFromToken() === "admin"? 
+            `<a href="/src/html/adminPanel.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
+                <i data-lucide="gavel" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Админ</span>
+            </a>
+            `
+            : 
+            ``}
             <a href="/src/html/upload-video.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Добавить</span>
@@ -46,5 +54,20 @@ export function isValidJwt(token: string): boolean {
         return payload.exp > Date.now() / 1000;
     } catch {
         return false;
+    }
+}
+
+function getUserRoleFromToken(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+        const payload = token.split('.')[1];
+        const decoded = atob(payload);
+        const { role } = JSON.parse(decoded);
+        return role || null;
+    } catch (err) {
+        console.error("Ошибка при декодировании токена:", err);
+        return null;
     }
 }
