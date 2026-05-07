@@ -1,5 +1,6 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
+import { notify } from './notifier';
 
 createIcons({ icons });
 
@@ -44,7 +45,7 @@ form.addEventListener('submit', async (event) => {
 
         const data = await response.json();
         localStorage.setItem('token', data.token);
-        // window.history.back();
+        notify.later('success', 'Аккаунт успешно создан!');
         window.location.href = '/';
     } catch (err) {
         console.error('Ошибка сети:', err);

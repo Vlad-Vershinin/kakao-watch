@@ -48,7 +48,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql("Host=localhost;Port=5432;Database=kakao_watch;Username=postgres;Password=1374"));
+    options.UseNpgsql("Host=localhost;Port=5432;Database=kakao_watch;Username=postgres;Password=toor"));
 
 builder.Services.AddCors(options =>
 {

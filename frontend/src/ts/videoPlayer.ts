@@ -2,7 +2,8 @@ import '../style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos';
 import { formatRelativeTime } from './dateConverter';
-import { showNotification } from './notification';
+import { showAuthState } from './authStateIdentifier';
+import { notify } from './notifier';
 import type { Video } from './interfaces';
 
 // ==========================================
@@ -132,7 +133,7 @@ async function initPlayer(): Promise<void> {
 
   const video = await getVideoById(videoId);
   if (!video) {
-    showNotification('Не удалось загрузить видео');
+    notify.show('error', 'Не удалось загрузить видео');
     return;
   }
 
@@ -256,7 +257,7 @@ async function toggleLike(isLike: boolean): Promise<void> {
   const token = localStorage.getItem('token');
 
   if (!token) {
-    showNotification('Войдите, чтобы оценивать видео');
+    notify.show('error', 'Войдите, чтобы оценивать видео');
     return;
   }
 
@@ -308,7 +309,7 @@ function updateSubscribeUI(subscribed: boolean, authorId: number, count?: number
 async function toggleSubscription(authorId: number): Promise<void> {
   const token = localStorage.getItem('token');
   if (!token) {
-    showNotification('Войдите, чтобы подписываться');
+    notify.show('error', 'Войдите, чтобы подписываться');
     return;
   }
 
@@ -329,11 +330,11 @@ async function toggleSubscription(authorId: number): Promise<void> {
       updateSubscribeUI(newStatus, authorId, updatedVideo?.subscribersCount);
     } else {
       const errorData = await response.text();
-      showNotification(errorData || 'Ошибка при изменении подписки');
+      notify.show('error', errorData || 'Ошибка при изменении подписки');
     }
   } catch (err) {
     console.error('Ошибка подписки:', err);
-    showNotification('Произошла ошибка на сервере');
+    notify.show('error', 'Произошла ошибка на сервере');
   }
 }
 
@@ -389,7 +390,7 @@ async function sendComment(): Promise<void> {
   const token = localStorage.getItem('token');
 
   if (!token) {
-    showNotification('Войдите, чтобы оставить комментарий');
+    notify.show('error', 'Войдите, чтобы оставить комментарий');
     return;
   }
   if (!content) return;
@@ -414,7 +415,7 @@ async function sendComment(): Promise<void> {
       loadComments(videoId!);
     }
   } catch (err) {
-    showNotification('Ошибка при отправке комментария');
+    notify.show('error', 'Ошибка при отправке комментария');
   }
 }
 
@@ -435,6 +436,7 @@ async function deleteComment(commentId: number): Promise<void> {
     }
   } catch (err) {
     console.error("Ошибка удаления:", err);
+    notify.show('error', 'Ошибка при удалении комментария');
   }
 }
 // Привязка к window необходима, так как функция вызывается из inline onclick в HTML-строке
@@ -502,40 +504,6 @@ function checkIfNeedMore(): void {
 // ==========================================
 // 🔐 АВТОРИЗАЦИЯ И СОСТОЯНИЕ UI
 // ==========================================
-
-/** Обновляет кнопки входа/регистрации/выхода в зависимости от токена */
-function showAuthState(): void {
-  const token = localStorage.getItem('token');
-  const container = dom.authButtons;
-
-  if (isValidJwt(token!)) {
-    container.innerHTML = `
-      <a href="/src/html/upload-video.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
-        <i data-lucide="plus" class="w-4 h-4"></i>
-        <span class="hidden sm:inline">Добавить</span>
-      </a>
-      <button id="logout-btn" class="px-3 py-2 sm:px-4 sm:py-2 border border-border-light rounded-lg text-text-secondary hover:text-red-500 hover:border-red-500 font-medium transition-all flex items-center gap-1.5 text-sm sm:text-base">
-        <i data-lucide="log-out" class="w-4 h-4"></i>
-        <span class="hidden sm:inline">Выйти</span>
-      </button>`;
-  } else {
-    container.innerHTML = `
-      <a href="/src/html/sign-in.html" class="px-3 py-2 sm:px-4 sm:py-2 border border-border-light rounded-lg text-text-primary hover:bg-bg-secondary font-medium transition-all text-sm sm:text-base">
-        Войти
-      </a>
-      <a href="/src/html/sign-up.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm text-sm sm:text-base">
-        Регистрация
-      </a>`;
-  }
-
-  createIcons({ icons });
-
-  document.getElementById('logout-btn')?.addEventListener('click', () => {
-    localStorage.removeItem('token');
-    showAuthState();
-    window.location.reload();
-  });
-}
 
 /** Фиксирует просмотр видео на сервере */
 async function viewVideo(): Promise<void> {

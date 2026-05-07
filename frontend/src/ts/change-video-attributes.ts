@@ -1,7 +1,7 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
-import { showNotification } from './notification';
 import type { Video } from './interfaces';
+import { notify } from './notifier';
 
 
 async function getVideoById(id: string) {
@@ -10,7 +10,7 @@ async function getVideoById(id: string) {
         if (!response.ok) return null;
         return await response.json() as Video;
     } catch (err) {
-        console.error('Ошибка при получении видео:', err);
+        notify.show('error', 'Ошибка при загрузке видео');
         return null;
     }
 }
@@ -40,7 +40,7 @@ async function initPlayer() {
     const video = await getVideoById(videoId);
 
     if (!video) {
-        showNotification('Не удалось загрузить видео');
+        notify.show('error', 'Не удалось загрузить видео');
         return;
     }
     if(getUserIdFromToken() != video.authorId){
@@ -100,7 +100,7 @@ if (deleteBtn) {
                 window.location.href = '/';
             }, 1500);
         } else {
-            showNotification('Ошибка при удалении видео');
+            notify.show('error', 'Ошибка при удалении видео');
         }
     });
 }

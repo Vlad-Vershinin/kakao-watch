@@ -1,5 +1,6 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
+import { notify } from './notifier';
 
 createIcons({ icons });
 
@@ -30,16 +31,16 @@ form.addEventListener('submit', async (event) => {
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({ message: 'Ошибка при входе' }));
-            alert(error.message || 'Ошибка при входе');
+            notify.show('error', error.message || 'Неверный email или пароль');
             return;
         }
 
         const data = await response.json();
         localStorage.setItem('token', data.token);
-        //window.history.back();
+        notify.later('success', 'Успешный вход!');
         window.location.href = '/';
     } catch (err) {
         console.error('Ошибка сети:', err);
-        alert('Не удалось подключиться к серверу');
+        notify.show('error', 'Ошибка сети при входе');
     }
 });

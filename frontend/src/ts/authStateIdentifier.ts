@@ -6,7 +6,7 @@ export function showAuthState(): void {
 
     if (isValidJwt(token!)) {
         container.innerHTML = `
-            ${getUserRoleFromToken() === "admin"? 
+            ${getUserRoleFromToken() === "Admin"? 
             `<a href="/src/html/adminPanel.html" class="px-3 py-2 sm:px-4 sm:py-2 bg-contrast hover:bg-contrast-hover text-text-inverse rounded-lg font-medium transition-all shadow-sm flex items-center gap-1.5 text-sm sm:text-base">
                 <i data-lucide="gavel" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Админ</span>
@@ -62,12 +62,15 @@ function getUserRoleFromToken(): string | null {
     if (!token) return null;
 
     try {
-        const payload = token.split('.')[1];
-        const decoded = atob(payload);
-        const { role } = JSON.parse(decoded);
-        return role || null;
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+
+        return payload["role"] || 
+               payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || 
+               null;
     } catch (err) {
-        console.error("Ошибка при декодировании токена:", err);
+        console.error("Ошибка при извлечении роли из токена:", err);
         return null;
     }
 }
