@@ -44,7 +44,7 @@ services:
     container_name: kakao_client
     restart: always
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
       - backend
     networks:
