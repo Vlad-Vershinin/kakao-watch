@@ -7,15 +7,19 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        videoPlayer: resolve(__dirname, 'src/html/videoPlayer.html'),
-        signIn: resolve(__dirname, 'src/html/sign-in.html'),
-        signUp: resolve(__dirname, 'src/html/sign-up.html'),
-        about: resolve(__dirname, 'src/html/about.html'),
-        contacts: resolve(__dirname, 'src/html/contacts.html'),
-        adminPanel: resolve(__dirname, 'src/html/adminPanel.html'),
-        uploadVideo: resolve(__dirname, 'src/html/upload-video.html'),
-        changeVideoAttributes: resolve(__dirname, 'src/html/change-video-attributes.html'),
+        'sign-in': resolve(__dirname, 'src/html/sign-in.html'),
+        'sign-up': resolve(__dirname, 'src/html/sign-up.html'),
+        'about': resolve(__dirname, 'src/html/about.html'),
+        'contacts': resolve(__dirname, 'src/html/contacts.html'),
+        'video-player': resolve(__dirname, 'src/html/videoPlayer.html'),
+        'upload-video': resolve(__dirname, 'src/html/upload-video.html'),
+        'admin-panel': resolve(__dirname, 'src/html/adminPanel.html'),
+        'change-video-attributes': resolve(__dirname, 'src/html/change-video-attributes.html'),
       },
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+      }
     },
   },
   plugins: [
