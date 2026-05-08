@@ -1,113 +1,92 @@
+// adminPanel.ts
 import '../style.css';
 import { createIcons, icons } from 'lucide';
 import { getVideos } from './get-videos'; 
+import { notify } from './notifier';  
 import type { Video } from './interfaces';
-import { showAuthState } from './authStateIdentifier';
 
-function isValidJwt(token: string): boolean {
-    if (!token) return false;
-    const parts = token.split('.');
-    if (parts.length !== 3) return false;
-    try {
-        const payload = JSON.parse(atob(parts[1]));
-        return payload.exp > Date.now() / 1000;
-    } catch {
-        return false;
+const inputSearch = document.getElementById('inputNickname') as HTMLInputElement;
+const foundVideosContainer = document.getElementById('foundVideos');
+
+async function deleteVideo(id: number) {
+    if (!confirm('Вы уверены, что хотите удалить это видео?')) return;
+
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/videos/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (response.ok) {
+        notify.show('success', 'Видео успешно удалено');
+        performSearch();
+    } else {
+        notify.show('error', 'Ошибка при удалении');
     }
 }
 
-let currentPage = 1;
-const pageSize = 12;
-let isLoading = false;
-let hasMore = true;
-
-async function loadVideosIntoFeed(page: number) {
-    if (isLoading || !hasMore) return;
+function createAdminVideoRow(video: Video) {
+    const row = document.createElement('div');
+    row.className = 'flex bg-bg-tertiary min-h-10 rounded-md p-2 pr-5 gap-3 items-center';
     
-    const feedObject = document.getElementById('videoFeed');
-    const moreOptionsBtn = document.getElementById('moreOptions');
-    if (!feedObject) return;
+    row.innerHTML = `
+        <div class="flex relative bg-black h-20 w-36 rounded-md shrink-0">
+            <img src="${video.thumbnailPath}" class="w-full h-full object-cover rounded-md">
+            <div class="absolute right-1 bottom-1">
+                <p class="text-white bg-black/70 text-[10px] rounded px-1">${formatDuration(video.duration)}</p>
+            </div>
+        </div>
+        <div class="flex flex-1 flex-col justify-center">
+            <h2 class="text-lg font-semibold truncate">${video.name}</h2>
+            <p class="text-sm text-text-tertiary">${video.authorName}</p>
+        </div>
+        <div class="flex gap-2">
+            <button class="edit-btn p-2 hover:bg-orange-100 rounded-full transition-colors text-orange-500" title="Редактировать">
+                <i data-lucide="pencil" class="w-5 h-5"></i>
+            </button>
+            <button class="delete-btn p-2 hover:bg-red-100 rounded-full transition-colors text-red-500" title="Удалить">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </button>
+        </div>
+    `;
 
-    isLoading = true;
+    row.querySelector('.delete-btn')?.addEventListener('click', () => deleteVideo(video.id));
+    row.querySelector('.edit-btn')?.addEventListener('click', () => {
+        window.location.href = `/src/html/change-video-attributes.html?id=${video.id}`;
+    });
+
+    return row;
+}
+
+async function performSearch() {
+    if (!foundVideosContainer) return;
     
-    if (page === 1) {
-        feedObject.innerHTML = '<p class="text-center text-text-secondary">Загрузка видео...</p>';
+    const query = inputSearch?.value || '';
+    const response = await fetch(`/api/videos?page=1&pageSize=50&search=${encodeURIComponent(query)}`);
+    const videos: Video[] = await response.json();
+
+    foundVideosContainer.innerHTML = '';
+    
+    if (videos.length === 0) {
+        foundVideosContainer.innerHTML = '<p class="text-center py-10 text-text-tertiary">Видео не найдены</p>';
+        return;
     }
 
-    const videos = await getVideos(pageSize, page);
-
-    if (page === 1) feedObject.innerHTML = '';
-
-    if (videos.length < pageSize) {
-        hasMore = false;
-        if (moreOptionsBtn) moreOptionsBtn.style.display = 'none';
-    }
-
-    videos.forEach((video: Video) => {
-        const videoCard = document.createElement('a');
-        videoCard.href = `./src/html/videoPlayer.html?id=${video.id}`;
-        videoCard.className = 'block bg-bg-primary rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 group';
-        
-        videoCard.innerHTML = `
-            <div class="relative aspect-video bg-black overflow-hidden">
-                <img src="${video.thumbnailPath}" class="w-full h-full object-cover transition-transform group-hover:scale-105" alt="${video.name}">
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                    <div class="p-3 bg-orange-500 rounded-full text-white">
-                        <i data-lucide="play" class="w-6 h-6"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="p-4">
-                <h3 class="font-bold text-lg text-text-primary truncate group-hover:text-orange-500 transition-colors">${video.name}</h3>
-                <p class="text-text-secondary text-sm">Автор: ${video.authorName}</p>
-                <div class="flex justify-between mt-3 text-text-tertiary text-xs">
-                    <div class="flex items-center gap-4">
-                        <span class="flex items-center gap-1"><i data-lucide="eye" class="w-4 h-4"></i> ${video.views}</span>
-                        <span class="flex items-center gap-1"><i data-lucide="heart" class="w-4 h-4"></i> ${video.likes}</span>
-                    </div>
-                    <span class="flex items-center gap-1">
-                        <i data-lucide="timer" class="w-4 h-4"></i>
-                        ${formatDuration(video.duration)}
-                    </span>
-                </div>
-            </div>
-        `;
-        feedObject.appendChild(videoCard);
+    videos.forEach(v => {
+        foundVideosContainer.appendChild(createAdminVideoRow(v));
     });
 
     createIcons({ icons });
-    isLoading = false;
-    setTimeout(() => {
-        checkIfNeedMore();
-    }, 100);
 }
 
-function checkIfNeedMore() {
-    const moreOptionsBtn = document.getElementById('moreOptions');
-    if (moreOptionsBtn && moreOptionsBtn.offsetParent !== null && hasMore && !isLoading) {
-        const rect = moreOptionsBtn.getBoundingClientRect();
-        if (rect.top <= window.innerHeight + 300) {
-            currentPage++;
-            loadVideosIntoFeed(currentPage);
-        }
+let searchTimeout: ReturnType<typeof setTimeout> | undefined;
+
+inputSearch?.addEventListener('input', () => {
+    if (searchTimeout) {
+        clearTimeout(searchTimeout);
     }
-}
-
-function initInfiniteScroll() {
-    const moreOptionsBtn = document.getElementById('moreOptions');
-    if (!moreOptionsBtn) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !isLoading && hasMore) {
-            currentPage++;
-            loadVideosIntoFeed(currentPage);
-        }
-    }, {
-        rootMargin: '200px',
-    });
-
-    observer.observe(moreOptionsBtn);
-}
+    searchTimeout = setTimeout(performSearch, 500);
+});
 
 function formatDuration(seconds: number): string {
     const mins = Math.floor(seconds / 60);
@@ -115,18 +94,5 @@ function formatDuration(seconds: number): string {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-loadVideosIntoFeed(currentPage);
-initInfiniteScroll();
-showAuthState();
-
-
-
-
-
-
-
-
-
-
-
-createIcons({icons});
+performSearch();
+createIcons({ icons });

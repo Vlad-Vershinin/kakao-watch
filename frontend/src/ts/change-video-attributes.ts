@@ -25,12 +25,33 @@ async function attemptToUpdateAttributes() {
 }
 
 
+// Обновленная функция получения данных из токена
+function getUserDataFromToken(): { id: number | null, role: string | null } {
+    const token = localStorage.getItem('token');
+    if (!token) return { id: null, role: null };
+
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+
+        // Извлекаем ID и Роль (учитывая возможные форматы ключей Microsoft)
+        const id = payload["nameid"] || payload["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"];
+        const role = payload["role"] || payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+        return { 
+            id: id ? parseInt(id) : null, 
+            role: role || null 
+        };
+    } catch (error) {
+        console.error("Ошибка при парсинге токена:", error);
+        return { id: null, role: null };
+    }
+}
+
 async function initPlayer() {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = localStorage.getItem('token');
     const videoId = urlParams.get('id');
-    
-
     
     if (!videoId) {
         window.location.href = '/';
@@ -38,16 +59,26 @@ async function initPlayer() {
     }
 
     const video = await getVideoById(videoId);
-
     if (!video) {
         notify.show('error', 'Не удалось загрузить видео');
         return;
     }
-    if(getUserIdFromToken() != video.authorId){
+
+    const userData = getUserDataFromToken();
+    const isAuthor = userData.id === video.authorId;
+    const isAdmin = userData.role === 'Admin';
+
+    if (!isAuthor && !isAdmin) {
+        alert("У вас нет прав для редактирования этого видео");
         history.back();
-        alert("Вы не являетесь автором этого видео, либо такого видео не существует");
         return;
     }
+
+    const titleInput = document.getElementById('videoTitle') as HTMLTextAreaElement;
+    const descInput = document.getElementById('videoDescription') as HTMLTextAreaElement;
+    
+    if (titleInput) titleInput.value = video.name;
+    if (descInput) descInput.value = video.description || '';
 
     const videoElement = document.querySelector('video') as HTMLVideoElement;
     const sourceElement = videoElement?.querySelector('source');
@@ -57,8 +88,6 @@ async function initPlayer() {
         videoElement.load();
     }
     
-    document.getElementById('videoTitle')!.textContent = video.name;
-    document.getElementById('videoDescription')!.textContent = video.description || 'Нет описания';
     createIcons({ icons });
 }
 
@@ -125,64 +154,58 @@ async function deleteVideo(id: string): Promise<boolean> {
 
 (document.getElementById('submitBtn') as HTMLButtonElement)!.addEventListener("click", updateVideoData);
 
-async function updateVideoData(){
-        const urlParams = new URLSearchParams(window.location.search);
-        const videoId = urlParams.get('id');
-        if (!videoId) return;
+async function updateVideoData(e: Event) {
+    e.preventDefault();
 
-        const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
-        submitBtn.disabled = true;
-        let textBefore = submitBtn.textContent;
-        submitBtn.textContent = 'Загрузка...';
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoId = urlParams.get('id');
+    if (!videoId) return;
+
+    const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+    const titleInput = document.getElementById('videoTitle') as HTMLTextAreaElement;
+    const descInput = document.getElementById('videoDescription') as HTMLTextAreaElement;
     
-        const title = (document.getElementById('videoTitle') as HTMLTextAreaElement).value;
-        const description = (document.getElementById('videoDescription') as HTMLTextAreaElement).value;
-        //const access = document.getElementById('accessPanel')!.value;
-        
-        if (!title) {
-            alert('Заполните все обязательные поля');
+    const accessValue = (document.querySelector('input[name="access"]:checked') as HTMLInputElement)?.value;
+    
+    const accessEnum = accessValue === 'global' ? 0 : 1;
+
+    submitBtn.disabled = true;
+    const textBefore = submitBtn.textContent;
+    submitBtn.textContent = 'Сохранение...';
+
+    const token = localStorage.getItem('token');
+
+    const updateData = {
+        name: titleInput.value,
+        description: descInput.value,
+        access: accessEnum
+    };
+
+    try {
+        const response = await fetch(`/api/videos/${videoId}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updateData),
+        });
+
+        if (response.ok) {
+            notify.show('success', 'Данные обновлены');
+            setTimeout(() => history.back(), 1000);
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Ошибка при обновлении');
             submitBtn.disabled = false;
             submitBtn.textContent = textBefore;
-            submitBtn.innerHTML = '<i data-lucide="upload" class="w-5 h-5"></i> Загрузить видео';
-            createIcons({ icons });
-            return;
         }
-    
-        const formData = new FormData();
-        formData.append('Name', title);
-        formData.append('Description', description);
-    
-        const token = localStorage.getItem('token');
-    
-        try {
-            const response = await fetch(`/api/videos/${videoId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: formData,
-            });
-    
-            if (!response.ok) {
-                const error = await response.json().catch(() => ({ 
-                    message: `Ошибка при загрузке`
-                }));
-                
-                submitBtn.disabled = false;
-                submitBtn.textContent = textBefore;
-                alert(error.message || 'Ошибка при загрузке видео');
-                return;
-            }
-    
-            alert('Информация о видео успешно обновлена!');
-            history.back();
-        } catch (err) {
-            console.error('Ошибка сети:', err);
-            alert('Не удалось подключиться к серверу');
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i data-lucide="upload" class="w-5 h-5"></i> Загрузить видео';
-            createIcons({ icons });
-        }
+    } catch (err) {
+        console.error('Ошибка:', err);
+        notify.show('error', 'Ошибка сети');
+        submitBtn.disabled = false;
+        submitBtn.textContent = textBefore;
+    }
 }
 
 

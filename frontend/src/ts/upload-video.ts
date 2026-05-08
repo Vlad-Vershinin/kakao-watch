@@ -1,5 +1,6 @@
 import '../style.css';
 import { createIcons, icons } from 'lucide';
+import { notify } from './notifier';
 
 createIcons({ icons });
 
@@ -105,15 +106,15 @@ uploadForm.addEventListener('submit', async (event) => {
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({ message: 'Ошибка при загрузке' }));
-            alert(error.message || 'Ошибка при загрузке видео');
+            notify.later('error', error.message || 'Ошибка при загрузке видео');
             return;
         }
 
-        alert('Видео успешно загружено!');
+        notify.later('success', 'Видео успешно загружено');
         window.location.href = '/';
     } catch (err) {
         console.error('Ошибка сети:', err);
-        alert('Не удалось подключиться к серверу');
+        notify.later('error', 'Ошибка при загрузке видео');
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i data-lucide="upload" class="w-5 h-5"></i> Загрузить видео';
         createIcons({ icons });

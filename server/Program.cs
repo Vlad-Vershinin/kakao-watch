@@ -298,16 +298,22 @@ app.MapDelete("/api/videos/{id}", async (int id, AppDbContext db, HttpContext co
 }).RequireAuthorization();
 
 app.MapGet("/api/videos", async (
-    [FromQuery] int page, 
+    [FromQuery] int page,
     [FromQuery] int pageSize,
     [FromQuery] int? excludeId,
+    [FromQuery] string? search, // Добавляем поиск
     AppDbContext db) =>
 {
     var query = db.Videos.AsQueryable();
 
     if (excludeId.HasValue)
-    {
         query = query.Where(v => v.Id != excludeId.Value);
+
+    if (!string.IsNullOrWhiteSpace(search))
+    {
+        var lowerSearch = search.ToLower();
+        query = query.Where(v => v.Name.ToLower().Contains(lowerSearch) ||
+                                 v.Author.Name.ToLower().Contains(lowerSearch));
     }
 
     var videos = await query
@@ -316,34 +322,41 @@ app.MapGet("/api/videos", async (
         .OrderByDescending(v => v.DateTime)
         .Skip((page - 1) * pageSize)
         .Take(pageSize)
-        .Select(v => new
-        {
+        .Select(v => new {
             v.Id,
             v.Name,
             v.Path,
             AuthorName = v.Author.Name,
             v.Likes,
-            v.Dislikes,
             v.Views,
             v.ThumbnailPath,
             Duration = v.Duration.TotalSeconds,
             v.DateTime
         })
         .ToListAsync();
+
     return Results.Ok(videos);
 });
 
-app.MapPatch("/api/videos/{id}", async (int id, UpdateVideoDto dto, AppDbContext db) =>
+app.MapPatch("/api/videos/{id}", async (int id, UpdateVideoDto dto, AppDbContext db, HttpContext context) =>
 {
     var video = await db.Videos.FindAsync(id);
     if (video == null) return Results.NotFound();
+
+    var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+    var userRole = context.User.FindFirst(ClaimTypes.Role)?.Value;
+
+    bool isAuthor = video.AuthorId == userId;
+    bool isAdmin = userRole == "Admin";
+
+    if (!isAuthor && !isAdmin) return Results.Forbid();
 
     video.Name = dto.Name;
     video.Description = dto.Description;
     video.Access = dto.Access;
 
     await db.SaveChangesAsync();
-    return Results.Ok();
+    return Results.Ok(new { message = "Обновлено успешно" });
 }).RequireAuthorization();
 
 app.MapGet("/api/videos/stream/{id}", async (int id, AppDbContext db) =>
