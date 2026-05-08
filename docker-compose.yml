@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:17
@@ -16,33 +14,45 @@ services:
       retries: 5
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - kakao-network
 
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
     container_name: kakao_api
+    restart: always
     depends_on:
       db:
         condition: service_healthy
     environment:
       - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=kakao_watch;Username=user;Password=password
       - ASPNETCORE_URLS=http://+:5098
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
     ports:
       - "5098:5098"
     volumes:
       - ./server/wwwroot:/app/wwwroot
+    networks:
+      - kakao-network
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: kakao_client
+    restart: always
     ports:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - kakao-network
 
 volumes:
   pgdata:
+
+networks:
+  kakao-network:
+    driver: bridge
